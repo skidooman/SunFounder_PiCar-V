@@ -1,0 +1,562 @@
+{% load static %}
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="save" content="history">
+    <link rel = "Shortcut Icon" href="{% static 'favicon.ico' %} ">
+    <!-- load MUI -->
+    <link href="//cdn.muicss.com/mui-0.6.9/css/mui.min.css" rel="stylesheet" type="text/css" />
+    <script src="//cdn.muicss.com/mui-0.6.9/js/mui.min.js"></script>
+    <script type="text/javascript">
+      function keydown_event(key){
+        var a=key
+      }
+      function keyup_event(key){
+        var a=key
+      }
+    </script>
+    <style type="text/css">
+      html {
+        height: 100%;
+        width:  100%;
+        overflow: hidden;
+      }
+      body {
+        height: 100%;
+        width:  100%;
+        background-color: black;
+      }
+      #div_appbar {
+        width:  100%;
+      }
+      #div_streamer {
+        background: url(http://{{ host }}:8765/mjpg) no-repeat center top; 
+        background-size: auto 100%;
+        background-color: 0;
+	top: 0;
+        left: 15%;
+        width:  70%;
+        height:  100%;
+        position: fixed;
+      }
+      #div_controls {
+        background-color: black;
+        color: white;
+	top: 0;
+        left: 0;
+        width: 15%;
+        height: 100%;
+        position: fixed;
+      }
+      #div_controls_2 {
+        background-color: black;
+	color: white;
+	top: 0;
+        right: 0;
+        width: 15%;
+        height: 100%;
+        position: fixed;
+      }
+      #dev_streamer_canonical {
+        
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+      #div_control {
+        width:  100%;
+        position: absolute;
+        bottom: 0;
+      }
+      #button_opacity {
+        opacity: 0.4;
+      }
+      table {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+     }
+     td {
+	text-align: center;
+	vertical-align: top;
+	align-items: center;
+	align-content: center;
+     }
+     #stop {
+	height: 25px;
+	width: 60px;
+	background-color: red;
+	border-radius: 15px;
+	border: 4px solid #FFFFFF;
+     }
+     #forward1, #backward1 {
+	height: 25px;
+	width: 75px;
+	background-color: black;
+	border-radius: 15px;
+	border: 4px solid #FFFFFF;
+     }
+     #forward2, #backward2 {
+	height: 25px;
+	width: 90px;
+	background-color: black;
+	border-radius: 15px;
+	border: 4px solid #FFFFFF;
+     }
+     #forward3, #backward3 {
+	height: 25px;
+	width: 105px;
+	background-color: black;
+	border-radius: 15px;
+	border: 4px solid #FFFFFF;
+     }
+      #triangle-down {
+      width: 0;
+      height: 0;
+      border-left: 60px solid transparent;
+      border-right: 60px solid transparent;
+      border-top: 35px solid orange;
+    }
+    #triangle-up {
+      width: 0;
+      height: 0;
+      border-left: 60px solid transparent;
+      border-right: 60px solid transparent;
+      border-bottom: 35px solid green;
+    }
+    </style>
+  </head>
+
+  <body  onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
+
+    <script type="text/javascript">
+      run_action('setup');
+      run_action('bwready');
+      run_action('fwready');
+      run_action('camready');
+      var allowed = true;
+
+      function run_action(value){
+        var xmlHttp  = new XMLHttpRequest();
+        var protocol  = window.location.protocol;
+        var host      = window.location.host;
+        var pathname  = window.location.pathname;
+        url = protocol + "//" + host + pathname + "?action" + "=" + value;
+        //document.getElementById("debug").innerHTML=url;
+        xmlHttp.open( "GET", url, false );
+        xmlHttp.send( null );
+        return xmlHttp.responseText;
+      }
+      function set_speed(value){
+        var xmlHttp  = new XMLHttpRequest();
+        var protocol  = window.location.protocol;
+        var host      = window.location.host;
+        var pathname  = window.location.pathname;
+        url = protocol + "//" + host + pathname + "?speed" + "=" + value;
+        //document.getElementById("debug").innerHTML=url;
+        xmlHttp.open( "GET", url, false );
+        xmlHttp.send( null );
+        return xmlHttp.responseText;
+      }
+      function keydown_event(key){
+        if (event.repeat != undefined) {
+          allowed = !event.repeat;
+        }
+        if (!allowed) return;
+        allowed = false;
+        if (key == 0){
+          var x;
+          if(window.event) { // IE8 以及更早版本
+            x=event.keyCode;
+          }
+          else if(event.which) {// IE9/Firefox/Chrome/Opera/Safari
+            x=event.which;
+          }
+          var keychar=String.fromCharCode(x);
+        }
+        else{
+          keychar = key
+        }
+        switch(keychar){
+          case 'W':
+            run_action('forward')
+            break;
+          case 'S':
+            run_action('backward')
+            break;
+          case 'A':
+            run_action('fwleft')
+            break;
+          case 'D':
+            run_action('fwright')
+            break;
+          case '&':
+            run_action('camup')
+            break;
+          case '(':
+            run_action('camdown')
+            break;
+          case "'":
+            run_action('camright')
+            break;
+          case '%':
+            run_action('camleft')
+            break;
+          case '1':
+            set_speed('40')
+            break;
+          case '2':
+            set_speed('55')
+            break;
+          case '3':
+            set_speed('70')
+            break;
+          case '4':
+            set_speed('85')
+            break;
+          case '5':
+            set_speed('100')
+            break;
+        }
+      }
+      function keyup_event(key){
+        allowed = true;
+        if (key == 0){
+          var x;
+          if(window.event) { // IE8 以及更早版本
+            x=event.keyCode;
+          }
+          else if(event.which) {// IE9/Firefox/Chrome/Opera/Safari
+            x=event.which;
+          }
+          var keychar=String.fromCharCode(x);
+        }
+        else{
+          keychar = key
+        }
+        switch(keychar){
+          case 'W':
+            run_action('stop')
+            break;
+          case 'S':
+            run_action('stop')
+            break;
+          case 'A':
+            run_action('fwstraight')
+            break;
+          case 'D':
+            run_action('fwstraight')
+            break;
+          case '&':
+            run_action('camready')
+            break;
+          case '(':
+            run_action('camready')
+            break;
+          case "'":
+            run_action('camready')
+            break;
+          case '%':
+            run_action('camready')
+            break;
+        }
+      }
+      function forward_left(){
+        run_action('forward')
+        run_action('fwleft')
+      }
+      function forward_right(){
+        run_action('forward')
+        run_action('fwright')
+      }
+      function backward_left(){
+        run_action('backward')
+        run_action('fwleft')
+      }
+      function backward_right(){
+        run_action('backward')
+        run_action('fwright')
+      }
+      function camup_left(){
+        run_action('camup')
+        run_action('camleft')
+      }
+      function camup_right(){
+        run_action('camup')
+        run_action('camright')
+      }
+      function camdown_left(){
+        run_action('camdown')
+        run_action('camleft')
+      }
+      function camdown_right(){
+        run_action('camdown')
+        run_action('camright')
+      }
+      function stop(){
+        run_action('stop')
+        run_action('fwstraight')
+      }
+
+      function toggle(targetid){
+        if (document.getElementById){
+          target=document.getElementById(targetid);
+            if (target.style.display=="block"){
+              target.style.display="none";
+            } else {
+              target.style.display="block";
+            }
+        }
+      }
+
+    var lastMovement = 0;
+
+    function sleep (time) {
+  	return new Promise((resolve) => setTimeout(resolve, time));
+    }
+
+    function sequentialLightsUp(movement) {
+	for (var i=1; i <= movement && i < 4; i++){
+		var target = document.getElementById("forward" + i);
+		target.style.backgroundColor = "green";
+		sleep(200);
+		}
+	switch(movement) {
+		case 1:
+			set_speed(55);
+			break;
+		case 2:
+			set_speed(70);
+			break;
+		case 3:
+			set_speed(85);
+			break;
+		case 4:
+			set_speed(100);
+			break;		
+		
+	}
+	
+	run_action('backward');
+	
+		
+    }
+
+    function sequentialLightsDown(movement) {
+    	for (var i=-1; i >= movement && i > -4; i--) {
+		var target = document.getElementById("backward" + (i*-1));
+		target.style.backgroundColor = "orange";
+		sleep(200);
+	}
+	switch(movement) {
+		case 1:
+			set_speed(55);
+			break;
+		case 2:
+			set_speed(70);
+			break;
+		case 3:
+			set_speed(85);
+			break;
+		case 4:
+			set_speed(100);
+			break;		
+		
+	}
+	run_action('forward');
+    }
+
+    function sequentialLightUpClose(){
+	for (var i=3; i > 0; i--){
+		var target = document.getElementById("forward" + i);
+		target.style.backgroundColor = "black";
+		sleep(200);
+	}
+	
+	stop();
+    }
+
+    function sequentialLightDownClose(){
+	for (var i=-3; i < 0; i++){
+		var target = document.getElementById("backward" + (i*-1));
+		target.style.backgroundColor = "black";
+		sleep(200);
+	}
+	stop();
+    }
+
+    function move(movement) {
+	
+	if (movement == 0){
+		var thisMovement = lastMovement;
+		lastMovement = movement;
+		if (thisMovement > 0)
+			sequentialLightUpClose();
+		else sequentialLightDownClose();
+	}
+	else 
+	{
+	if (movement > 0){
+		lastMovement = movement;
+		sequentialLightsUp(movement);
+		
+	}
+	else
+	{
+		lastMovement = movement;
+		sequentialLightsDown(movement);
+	}
+	}
+		
+    }
+
+
+    </script>
+<div id="div_controls">
+<table border="0">
+	<tr><td>LOGO</td></tr>
+	<tr><td>Direction</td></tr>
+	<tr><td>Camera</td></tr>
+</table>
+</div>
+<div id="div_streamer"></div>
+<div id="div_controls_2">
+<table border="0">
+	<tr><td><h2>Core Car</h2></td></tr>
+	<tr><td style="vertical-align: top;">
+	<h3>Speed</h3>
+	<center>
+		<!--<div id="triangle-up" onmousedown="move(4);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div><br>
+-->
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(4);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="triangle-up" onmousedown="move(4);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(4);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br>
+		
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(3);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="forward3" onmousedown="move(3);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(3);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br>
+	
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(2);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="forward2" onmousedown="move(2);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(2);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(1);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="forward1" onmousedown="move(1);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(1);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br>
+
+		<div id="stop"  align="center"></div><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(-1);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="backward1" onmousedown="move(-1);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(-1);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(-2);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="backward2" onmousedown="move(-2);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(-2);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(-3);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="backward3" onmousedown="move(-3);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(-3);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(-4);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="triangle-down" onmousedown="move(-4);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(-4);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br>
+	</center>
+	</td></tr>
+	<tr><td style="height: 18%;"></td></tr>
+</table>
+</div>   
+<!--
+    <div id="div_streamer2">
+      <div id="div_control">
+        <div class="mui-row">
+          <button class="mui-btn mui--text-subhead" disabled>Speed:</button>
+          <button class="mui-btn mui-btn--primary mui-btn--fab" onmousedown="set_speed('40')" id="button_opacity">1</button>
+          <button class="mui-btn mui-btn--primary mui-btn--fab" onmousedown="set_speed('55')" id="button_opacity">2</button>
+          <button class="mui-btn mui-btn--primary mui-btn--fab" onmousedown="set_speed('70')" id="button_opacity">3</button>
+          <button class="mui-btn mui-btn--primary mui-btn--fab" onmousedown="set_speed('85')" id="button_opacity">4</button>
+          <button class="mui-btn mui-btn--primary mui-btn--fab" onmousedown="set_speed('100')" id="button_opacity">5</button>
+          <button class="mui-btn mui-btn--primary" onmousedown="toggle('div_appbar')" id="button_opacity">Fullscreen</button>
+        </div> -->
+        <!-- Control Panel-->
+        <!--Forward, Camera up button  ◤◥-->
+<!--        <div class="mui-row">
+          <div class="mui-col-xs-2 mui-col-sm-2", align="right">
+            <button class="mui-btn mui-btn--primary" ontouchstart="forward_left()"ontouchend="stop()" id="button_opacity">◤</button>
+          </div>
+          <div class="mui-col-xs-2 mui-col-sm-2", align="center">
+            <button class="mui-btn mui-btn--primary" ontouchstart="run_action('forward')" ontouchend="stop()" id="button_opacity">▲</button>
+          </div>
+          <div class="mui-col-xs-2 mui-col-sm-2", align="left">
+            <button class="mui-btn mui-btn--primary" ontouchstart="forward_right()"ontouchend="stop()" id="button_opacity">◥</button>
+          </div>
+          <div class="mui-col-xs-2 mui-col-sm-2", align="right">
+            <button class="mui-btn mui-btn--primary" ontouchstart="camup_left()"ontouchend="run_action('camready')" id="button_opacity">◸</button>
+          </div>
+          <div class="mui-col-xs-2 mui-col-sm-2", align="center">
+            <button class="mui-btn mui-btn--primary" ontouchstart="run_action('camup')" ontouchend="run_action('camready')" id="button_opacity">△</button>
+          </div>
+          <div class="mui-col-xs-2 mui-col-sm-2", align="left">
+            <button class="mui-btn mui-btn--primary" ontouchstart="camup_right()" ontouchend="run_action('camready')" id="button_opacity">◹</button>
+          </div>
+        </div> -->
+        <!--Camera Left, Right button-->
+<!--        <div class="mui-row">
+          <div class="mui-col-xs-2 mui-col-sm-2 mui-col-sm-offset-6 mui-col-xs-offset-6", align="right">
+            <button class="mui-btn mui-btn--primary" ontouchstart="run_action('camleft')" ontouchend="run_action('camready')" id="button_opacity">◁</button>
+          </div> -->
+          <!--
+          <div class="mui-col-xs-2 mui-col-sm-2", align="center">
+            <button class="mui-btn mui-btn--primary" ontouchstart="run_action('camready')" ontouchend="run_action('camready')">□</button>
+          </div>
+          -->
+<!--          <div class="mui-col-xs-2 mui-col-sm-2 mui-col-sm-offset-2 mui-col-xs-offset-2", align="left">
+            <button class="mui-btn mui-btn--primary" ontouchstart="run_action('camright')" ontouchend="run_action('camready')" id="button_opacity">▷</button>
+          </div>
+        </div> -->
+        <!--Backward button-->
+<!--        <div class="mui-row">
+          <div class="mui-col-xs-2 mui-col-sm-2", align="right">
+              <button class="mui-btn mui-btn--primary" ontouchstart="backward_left()" ontouchend="stop()" id="button_opacity">◣</button>
+          </div>
+          <div class="mui-col-xs-2 mui-col-sm-2", align="center">
+              <button class="mui-btn mui-btn--primary" ontouchstart="run_action('backward')" ontouchend="stop()" id="button_opacity">▼</button>
+          </div>
+          <div class="mui-col-xs-2 mui-col-sm-2", align="left">
+              <button class="mui-btn mui-btn--primary" ontouchstart="backward_right()" ontouchend="stop()" id="button_opacity">◢</button>
+          </div>
+          <div class="mui-col-xs-2 mui-col-sm-2", align="right">
+              <button class="mui-btn mui-btn--primary" ontouchstart="camdown_left()" ontouchend="run_action('camready')" id="button_opacity">◺</button>
+          </div>
+          <div class="mui-col-xs-2 mui-col-sm-2", align="center">
+              <button class="mui-btn mui-btn--primary" ontouchstart="run_action('camdown')" ontouchend="run_action('camready')" id="button_opacity">▽</button>
+          </div>
+          <div class="mui-col-xs-2 mui-col-sm-2", align="left">
+              <button class="mui-btn mui-btn--primary" ontouchstart="camdown_right()" ontouchend="run_action('camready')" id="button_opacity">◿</button>
+          </div>
+        </div>
+      </div>
+    </div>
+ -->   
+  </body>
+</html>
