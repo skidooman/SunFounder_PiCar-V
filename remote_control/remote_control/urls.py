@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.home),
     url(r'^run/$', views.run),
+    url(r'^run_canonical/$', views.run_canonical),
     url(r'^cali/$', views.cali),
     url(r'^connection_test/$', views.connection_test),
 ]

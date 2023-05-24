@@ -131,14 +131,22 @@
     </style>
   </head>
 
-  <body  onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
-
     <script type="text/javascript">
-      run_action('setup');
-      run_action('bwready');
-      run_action('fwready');
-      run_action('camready');
-      var allowed = true;
+      // This is our initialization routine, needs to happen after the page is loaded
+      function initialize() {
+	run_action('setup');
+      	run_action('bwready');
+      	run_action('fwready');
+      	run_action('camready');
+      	var allowed = true;
+
+     	// Disables the contextual menu on long touches
+     	window.oncontextmenu = function(event) {
+     	event.preventDefault();
+     	event.stopPropagation();
+     	return false;
+     	};
+     }
 
       function run_action(value){
         var xmlHttp  = new XMLHttpRequest();
@@ -314,9 +322,11 @@
       }
 
     var lastMovement = 0;
+    var timeOut = 200;
 
     function sleep (time) {
-  	return new Promise((resolve) => setTimeout(resolve, time));
+  	//return new Promise((resolve) => setTimeout(resolve, time));
+	setTimeout(function() { console.log('waited');}, timeOut);
     }
 
     function sequentialLightsUp(movement) {
@@ -343,7 +353,6 @@
 	
 	run_action('backward');
 	
-		
     }
 
     function sequentialLightsDown(movement) {
@@ -414,73 +423,121 @@
 		
     }
 
+    function turnLeft(movement)
+    {
+	run_action('fwleft');
+	setTimeout(function () {move(movement);}, 1000);
+    }
+
+
+    function turnRight(movement)
+    {
+	run_action('fwright');
+	setTimeout(function () {move(movement);}, 1000);
+    }
+
 
     </script>
+
+  <body onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
+
+    <script type="text/javascript">
+      	// This needs to be called from here otherwise the cam is never being shown
+	run_action('setup');
+      	run_action('bwready');
+      	run_action('fwready');
+      	run_action('camready');
+      	var allowed = true;
+
+     	// Disables the contextual menu on long touches
+     	window.oncontextmenu = function(event) {
+     	event.preventDefault();
+     	event.stopPropagation();
+     	return false;
+     	};
+     </script>
+
 <div id="div_controls">
 <table border="0">
-	<tr><td>LOGO</td></tr>
-	<tr><td>Direction</td></tr>
-	<tr><td>Camera</td></tr>
+	<tr><td><h2>Core Car</h2></td></tr>
+	<tr><td><h3>Camera</h3>
+	<table border="0" style="position: relative; height: 180px;">
+	<tr>
+		<td><img src="{% static 'up-left.png'%}" onmousedown="camup_left();" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="camup_left();" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{% static 'up.png'%}" onmousedown="run_action('camup')" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="run_action('camup')" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{% static 'up-right.png'%}" onmousedown="camup_right();" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="camup_right();" ontouchend="run_action('camready')" width="40" height="40"></td>
+	</tr><tr>
+		<td><img src="{% static 'left.png'%}" onmousedown="run_action('camleft')" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="run_action('camleft')" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{% static 'camera.png'%}" onmousedown="run_action('camready')" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="run_action('camready')" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{% static 'right.png'%}" onmousedown="run_action('camright')" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="run_action('camright')" ontouchend="run_action('camready')" width="40" height="40"></td>
+	</tr><tr>
+		<td><img src="{% static 'down-left.png'%}" onmousedown="camdown_left();" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="camdown_left();" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{% static 'down.png'%}" onmousedown="run_action('camdown')" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="run_action('camdown')" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{% static 'down-right.png'%}" onmousedown="camdown_right();" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="camdown_right();" ontouchend="run_action('camready')" width="40" height="40"></td>
+	</tr></table>
+	</td></tr>
+	<tr><td><a href="https://www.flaticon.com/free-icons/down" title="down icons">Down icons created by Freepik - Flaticon</a></td></tr>
 </table>
 </div>
 <div id="div_streamer"></div>
 <div id="div_controls_2">
 <table border="0">
-	<tr><td><h2>Core Car</h2></td></tr>
+	<tr><td><h3>Based on SunFounder's PiCar-V</h3></td></tr>
 	<tr><td style="vertical-align: top;">
 	<h3>Speed</h3>
 	<center>
 		<!--<div id="triangle-up" onmousedown="move(4);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div><br>
 -->
 		<table border=0 width="100%"><tr>
-		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(4);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="triangle-up" onmousedown="move(4);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
-		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(4);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		<td> <div onmousedown="turnLeft(4);" ontouchstart="turnLeft(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="triangle-up" onmousedown="move(4);" ontouchstart="move(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(4);" ontouchstart="turnRight(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="turnLeft(3);" ontouchstart="turnLeft(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="forward3" onmousedown="move(3);" ontouchstart="move(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(3);" ontouchstart="turnRight(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="turnLeft(2);" ontouchstart="turnLeft(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="forward2" onmousedown="move(2);" ontouchstart="move(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(2);" ontouchstart="turnRight(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="turnLeft(1);" ontouchstart="turnLeft(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="forward1" onmousedown="move(1);" ontouchstart="move(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(1);" ontouchstart="turnRight(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br>
 		
+		<div id="stop" align="center" onmousedown="move(0);" ontouchstart="move(0);"></div><br>
+
 		<table border=0 width="100%"><tr>
-		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(3);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="forward3" onmousedown="move(3);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
-		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(3);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
-		</tr></table><br><br>
-	
-		<table border=0 width="100%"><tr>
-		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(2);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="forward2" onmousedown="move(2);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
-		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(2);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		<td><div onmousedown="turnLeft(-1);" ontouchstart="turnLeft(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="backward1" onmousedown="move(-1);" ontouchstart="move(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(-1);" ontouchstart="turnRight(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br>
 
 		<table border=0 width="100%"><tr>
-		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(1);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="forward1" onmousedown="move(1);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
-		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(1);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
-		</tr></table><br><br>
-
-		<div id="stop"  align="center"></div><br>
-
-		<table border=0 width="100%"><tr>
-		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(-1);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="backward1" onmousedown="move(-1);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
-		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(-1);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		<td><div onmousedown="turnLeft(-2);" ontouchstart="turnLeft(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="backward2" onmousedown="move(-2);" ontouchstart="move(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(-2);" ontouchstart="turnRight(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br>
 
 		<table border=0 width="100%"><tr>
-		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(-2);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="backward2" onmousedown="move(-2);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
-		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(-2);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		<td><div onmousedown="turnLeft(-3);" ontouchstart="turnLeft(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="backward3" onmousedown="move(-3);" ontouchstart="move(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(-3);" ontouchstart="turnRight(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br>
 
 		<table border=0 width="100%"><tr>
-		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(-3);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="backward3" onmousedown="move(-3);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
-		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(-3);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		<td><div onmousedown="turnLeft(-4);" ontouchstart="turnLeft(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="triangle-down" onmousedown="move(-4);" ontouchstart="move(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(-4);" ontouchstart="turnRight(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br>
 
-		<table border=0 width="100%"><tr>
-		<td><div onmousedown="run_action('fwleft');setTimeout(function () {move(-4);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="triangle-down" onmousedown="move(-4);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
-		<td><div onmousedown="run_action('fwright');setTimeout(function () {move(-4);}, 1000);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
-		</tr></table><br><br>
 	</center>
 	</td></tr>
 	<tr><td style="height: 18%;"></td></tr>
