@@ -7,10 +7,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="save" content="history">
-    <link rel = "Shortcut Icon" href="{% static 'favicon.ico' %} ">
-    <!-- load MUI -->
-    <link href="//cdn.muicss.com/mui-0.6.9/css/mui.min.css" rel="stylesheet" type="text/css" />
-    <script src="//cdn.muicss.com/mui-0.6.9/js/mui.min.js"></script>
+    <link rel = "Shortcut Icon" href="{% static 'logo.png' %} ">
+    <link rel="stylesheet" href="{% static 'stylesheet.css' %}" type="text/css" charset="utf-8"/>
     <script type="text/javascript">
       function keydown_event(key){
         var a=key
@@ -26,9 +24,11 @@
         overflow: hidden;
       }
       body {
+	font-family: "ubunturegular", Times, serif;
         height: 100%;
         width:  100%;
         background-color: black;
+	background-image: {% static 'Core.png' %}
       }
       #div_appbar {
         width:  100%;
@@ -43,7 +43,8 @@
         height:  100%;
         position: fixed;
       }
-      #div_controls {
+
+      #div_controls_left {
         background-color: black;
         color: white;
 	top: 0;
@@ -52,7 +53,7 @@
         height: 100%;
         position: fixed;
       }
-      #div_controls_2 {
+      #div_controls_right {
         background-color: black;
 	color: white;
 	top: 0;
@@ -138,6 +139,7 @@
       	run_action('bwready');
       	run_action('fwready');
       	run_action('camready');
+	document.getElementById('div_streamer').style.background="url(http://{{ host }}:8765/mjpg) no-repeat center top";
       	var allowed = true;
 
      	// Disables the contextual menu on long touches
@@ -146,6 +148,8 @@
      	event.stopPropagation();
      	return false;
      	};
+
+	document.getElementById('splash').style.visibility = 'hidden'
      }
 
       function run_action(value){
@@ -435,31 +439,17 @@
 	run_action('fwright');
 	setTimeout(function () {move(movement);}, 1000);
     }
-
-
     </script>
 
   <body onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
+  <div id="splash"> Stand by </div>
 
-    <script type="text/javascript">
-      	// This needs to be called from here otherwise the cam is never being shown
-	run_action('setup');
-      	run_action('bwready');
-      	run_action('fwready');
-      	run_action('camready');
-      	var allowed = true;
-
-     	// Disables the contextual menu on long touches
-     	window.oncontextmenu = function(event) {
-     	event.preventDefault();
-     	event.stopPropagation();
-     	return false;
-     	};
-     </script>
-
-<div id="div_controls">
+<div id="div_controls_left">
 <table border="0">
-	<tr><td><h2>Core Car</h2></td></tr>
+	<tr><td>
+		<img src="{% static 'Core.png'%}" style="position:relative; width: 100%; height:auto;">	
+		<h2>Core Car</h2>
+	</td></tr>
 	<tr><td><h3>Camera</h3>
 	<table border="0" style="position: relative; height: 180px;">
 	<tr>
@@ -480,15 +470,14 @@
 </table>
 </div>
 <div id="div_streamer"></div>
-<div id="div_controls_2">
+<div id="div_controls_right">
 <table border="0">
-	<tr><td><h3>Based on SunFounder's PiCar-V</h3></td></tr>
+	<tr><td><h3>Based on<br>SunFounder's<br>PiCar-V</h3></td></tr>
 	<tr><td style="vertical-align: top;">
 	<h3>Speed</h3>
 	<center>
-		<!--<div id="triangle-up" onmousedown="move(4);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div><br>
--->
-		<table border=0 width="100%"><tr>
+
+		<table border=0 style="width: 100%; height:0;"><tr>
 		<td> <div onmousedown="turnLeft(4);" ontouchstart="turnLeft(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
 		<td align="center"><center><div id="triangle-up" onmousedown="move(4);" ontouchstart="move(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(4);" ontouchstart="turnRight(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
@@ -498,19 +487,19 @@
 		<td><div onmousedown="turnLeft(3);" ontouchstart="turnLeft(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
 		<td align="center"><center><div id="forward3" onmousedown="move(3);" ontouchstart="move(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(3);" ontouchstart="turnRight(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
-		</tr></table><br><br>
+		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(2);" ontouchstart="turnLeft(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
 		<td align="center"><center><div id="forward2" onmousedown="move(2);" ontouchstart="move(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(2);" ontouchstart="turnRight(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
-		</tr></table><br><br>
+		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(1);" ontouchstart="turnLeft(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
 		<td align="center"><center><div id="forward1" onmousedown="move(1);" ontouchstart="move(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(1);" ontouchstart="turnRight(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
-		</tr></table><br><br>
+		</tr></table><br><br><br>
 		
 		<div id="stop" align="center" onmousedown="move(0);" ontouchstart="move(0);"></div><br>
 
@@ -518,102 +507,47 @@
 		<td><div onmousedown="turnLeft(-1);" ontouchstart="turnLeft(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
 		<td align="center"><center><div id="backward1" onmousedown="move(-1);" ontouchstart="move(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(-1);" ontouchstart="turnRight(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
-		</tr></table><br><br>
+		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(-2);" ontouchstart="turnLeft(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
 		<td align="center"><center><div id="backward2" onmousedown="move(-2);" ontouchstart="move(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(-2);" ontouchstart="turnRight(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
-		</tr></table><br><br>
+		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(-3);" ontouchstart="turnLeft(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
 		<td align="center"><center><div id="backward3" onmousedown="move(-3);" ontouchstart="move(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(-3);" ontouchstart="turnRight(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
-		</tr></table><br><br>
+		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(-4);" ontouchstart="turnLeft(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
 		<td align="center"><center><div id="triangle-down" onmousedown="move(-4);" ontouchstart="move(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(-4);" ontouchstart="turnRight(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
-		</tr></table><br><br>
+		</tr></table><br><br><br>
 
 	</center>
 	</td></tr>
 	<tr><td style="height: 18%;"></td></tr>
 </table>
 </div>   
-<!--
-    <div id="div_streamer2">
-      <div id="div_control">
-        <div class="mui-row">
-          <button class="mui-btn mui--text-subhead" disabled>Speed:</button>
-          <button class="mui-btn mui-btn--primary mui-btn--fab" onmousedown="set_speed('40')" id="button_opacity">1</button>
-          <button class="mui-btn mui-btn--primary mui-btn--fab" onmousedown="set_speed('55')" id="button_opacity">2</button>
-          <button class="mui-btn mui-btn--primary mui-btn--fab" onmousedown="set_speed('70')" id="button_opacity">3</button>
-          <button class="mui-btn mui-btn--primary mui-btn--fab" onmousedown="set_speed('85')" id="button_opacity">4</button>
-          <button class="mui-btn mui-btn--primary mui-btn--fab" onmousedown="set_speed('100')" id="button_opacity">5</button>
-          <button class="mui-btn mui-btn--primary" onmousedown="toggle('div_appbar')" id="button_opacity">Fullscreen</button>
-        </div> -->
-        <!-- Control Panel-->
-        <!--Forward, Camera up button  ◤◥-->
-<!--        <div class="mui-row">
-          <div class="mui-col-xs-2 mui-col-sm-2", align="right">
-            <button class="mui-btn mui-btn--primary" ontouchstart="forward_left()"ontouchend="stop()" id="button_opacity">◤</button>
-          </div>
-          <div class="mui-col-xs-2 mui-col-sm-2", align="center">
-            <button class="mui-btn mui-btn--primary" ontouchstart="run_action('forward')" ontouchend="stop()" id="button_opacity">▲</button>
-          </div>
-          <div class="mui-col-xs-2 mui-col-sm-2", align="left">
-            <button class="mui-btn mui-btn--primary" ontouchstart="forward_right()"ontouchend="stop()" id="button_opacity">◥</button>
-          </div>
-          <div class="mui-col-xs-2 mui-col-sm-2", align="right">
-            <button class="mui-btn mui-btn--primary" ontouchstart="camup_left()"ontouchend="run_action('camready')" id="button_opacity">◸</button>
-          </div>
-          <div class="mui-col-xs-2 mui-col-sm-2", align="center">
-            <button class="mui-btn mui-btn--primary" ontouchstart="run_action('camup')" ontouchend="run_action('camready')" id="button_opacity">△</button>
-          </div>
-          <div class="mui-col-xs-2 mui-col-sm-2", align="left">
-            <button class="mui-btn mui-btn--primary" ontouchstart="camup_right()" ontouchend="run_action('camready')" id="button_opacity">◹</button>
-          </div>
-        </div> -->
-        <!--Camera Left, Right button-->
-<!--        <div class="mui-row">
-          <div class="mui-col-xs-2 mui-col-sm-2 mui-col-sm-offset-6 mui-col-xs-offset-6", align="right">
-            <button class="mui-btn mui-btn--primary" ontouchstart="run_action('camleft')" ontouchend="run_action('camready')" id="button_opacity">◁</button>
-          </div> -->
-          <!--
-          <div class="mui-col-xs-2 mui-col-sm-2", align="center">
-            <button class="mui-btn mui-btn--primary" ontouchstart="run_action('camready')" ontouchend="run_action('camready')">□</button>
-          </div>
-          -->
-<!--          <div class="mui-col-xs-2 mui-col-sm-2 mui-col-sm-offset-2 mui-col-xs-offset-2", align="left">
-            <button class="mui-btn mui-btn--primary" ontouchstart="run_action('camright')" ontouchend="run_action('camready')" id="button_opacity">▷</button>
-          </div>
-        </div> -->
-        <!--Backward button-->
-<!--        <div class="mui-row">
-          <div class="mui-col-xs-2 mui-col-sm-2", align="right">
-              <button class="mui-btn mui-btn--primary" ontouchstart="backward_left()" ontouchend="stop()" id="button_opacity">◣</button>
-          </div>
-          <div class="mui-col-xs-2 mui-col-sm-2", align="center">
-              <button class="mui-btn mui-btn--primary" ontouchstart="run_action('backward')" ontouchend="stop()" id="button_opacity">▼</button>
-          </div>
-          <div class="mui-col-xs-2 mui-col-sm-2", align="left">
-              <button class="mui-btn mui-btn--primary" ontouchstart="backward_right()" ontouchend="stop()" id="button_opacity">◢</button>
-          </div>
-          <div class="mui-col-xs-2 mui-col-sm-2", align="right">
-              <button class="mui-btn mui-btn--primary" ontouchstart="camdown_left()" ontouchend="run_action('camready')" id="button_opacity">◺</button>
-          </div>
-          <div class="mui-col-xs-2 mui-col-sm-2", align="center">
-              <button class="mui-btn mui-btn--primary" ontouchstart="run_action('camdown')" ontouchend="run_action('camready')" id="button_opacity">▽</button>
-          </div>
-          <div class="mui-col-xs-2 mui-col-sm-2", align="left">
-              <button class="mui-btn mui-btn--primary" ontouchstart="camdown_right()" ontouchend="run_action('camready')" id="button_opacity">◿</button>
-          </div>
-        </div>
-      </div>
-    </div>
- -->   
-  </body>
+<script type="text/javascript">
+      	// This needs to be called from here otherwise the cam is never being shown
+	run_action('setup');
+      	run_action('bwready');
+      	run_action('fwready');
+      	run_action('camready');
+      	var allowed = true;
+	
+     	// Disables the contextual menu on long touches
+     	window.oncontextmenu = function(event) {
+     	event.preventDefault();
+     	event.stopPropagation();
+     	return false;
+     	}
+	document.getElementById('splash').style.visibility = 'hidden';
+	
+     </script>
+</body>
 </html>
