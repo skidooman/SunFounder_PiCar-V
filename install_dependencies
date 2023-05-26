@@ -11,9 +11,12 @@
 repo_dir=`pwd`
 
 is_installed_django=False
+is_installed_flask=False
 is_installed_python_smbus=False
 is_installed_python_opencv=False
+is_installed_python_rpi=False
 is_installed_libjpeg8_dev=False
+
 
 if [ "$(whoami)" != "root" ] ; then
     echo -e "You must run this script as root."
@@ -111,6 +114,37 @@ if sudo apt-get install python3-opencv -y; then
     is_installed_python_opencv=true
 else
     echo -e "    Failed to installed python-opencv \n"
+    echo -e "    Do you want to skip this? \c"
+    if_continue
+    if [ $? = 1 ] ; then
+        echo -e "    Skipped python-opencv installation."
+    else
+        end
+    fi
+fi
+
+echo -e "\nInstalling RPI.GPIO (necessary on Ubuntu) \n"
+if sudo pip3 install RPI.GPIO -y; then
+    echo -e "    Successfully installed RPI.GPIO \n"
+    is_installed_python_rpi=true
+else
+    echo -e "    Failed to installed RPI.GPIO \n"
+    echo -e "    Do you want to skip this? \c"
+    if_continue
+    if [ $? = 1 ] ; then
+        echo -e "    Skipped python-opencv installation."
+    else
+        end
+    fi
+fi
+
+
+echo -e "\nInstalling Flask \n"
+if sudo pip3 install flask -y; then
+    echo -e "    Successfully installed Flask \n"
+    is_installed_python_rpi=true
+else
+    echo -e "    Failed to installed Flask \n"
     echo -e "    Do you want to skip this? \c"
     if_continue
     if [ $? = 1 ] ; then

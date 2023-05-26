@@ -442,7 +442,24 @@
     </script>
 
   <body onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
-  <!-- <div id="splash"> Stand by </div>-->
+    
+<script type="text/javascript">
+      	// This needs to be called from here otherwise the cam is never being shown
+	run_action('setup');
+      	run_action('bwready');
+      	run_action('fwready');
+      	run_action('camready');
+      	var allowed = true;
+	
+     	/*// Disables the contextual menu on long touches
+     	window.oncontextmenu = function(event) {
+     	event.preventDefault();
+     	event.stopPropagation();
+     	return false;
+     	}*/
+	//document.getElementById('splash').style.visibility = 'hidden';
+	
+     </script>
 
 <div id="div_controls_left">
 <table border="0">
@@ -531,23 +548,6 @@
 	</td></tr>
 	<tr><td style="height: 18%;"></td></tr>
 </table>
-</div>   
-<script type="text/javascript">
-      	// This needs to be called from here otherwise the cam is never being shown
-	run_action('setup');
-      	run_action('bwready');
-      	run_action('fwready');
-      	run_action('camready');
-      	var allowed = true;
-	
-     	/*// Disables the contextual menu on long touches
-     	window.oncontextmenu = function(event) {
-     	event.preventDefault();
-     	event.stopPropagation();
-     	return false;
-     	}*/
-	//document.getElementById('splash').style.visibility = 'hidden';
-	
-     </script>
+</div> 
 </body>
 </html>

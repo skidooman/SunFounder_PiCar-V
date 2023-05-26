@@ -63,9 +63,11 @@ class Vilib(object):
 
     @staticmethod
     def camera():
- 
-        camera = cv2.VideoCapture(Vilib.video_source)
-
+        print ('launching camera') 
+        # This was working, but no more!
+        #camera = cv2.VideoCapture(Vilib.video_source)
+        camera = cv2.VideoCapture(Vilib.video_source, apiPreference=cv2.CAP_V4L2)
+        print (camera)
         camera.set(3,320)
         camera.set(4,240)
         width = int(camera.get(3))
