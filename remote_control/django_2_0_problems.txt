@@ -1,0 +1,23 @@
+  File "/usr/local/lib/python3.10/dist-packages/django/db/models/fields/__init__.py", line 155, in __init__
+    if isinstance(choices, collections.Iterator):
+AttributeError: module 'collections' has no attribute 'Iterator'
+
+--> collections.abc.Iterator
+
+  File "/usr/local/lib/python3.10/dist-packages/django/db/models/sql/query.py", line 9, in <module>
+    from collections import Counter, Iterator, Mapping, OrderedDict, namedtuple
+ImportError: cannot import name 'Iterator' from 'collections' (/usr/lib/python3.10/collections/__init__.py)
+
+--> collections.abc.Iterator, collections.abc.Mapping
+
+File "/usr/local/lib/python3.10/dist-packages/django/core/paginator.py", line 130, in <module>
+    class Page(collections.Sequence):
+AttributeError: module 'collections' has no attribute 'Sequence'
+
+--> collections.abc.Sequence
+
+  File "/usr/local/lib/python3.10/dist-packages/django/db/models/fields/__init__.py", line 442, in deconstruct
+    if name == "choices" and isinstance(value, collections.Iterable):
+AttributeError: module 'collections' has no attribute 'Iterable'
+
+--> collections.abc.Iterable
