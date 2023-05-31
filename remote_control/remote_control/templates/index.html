@@ -1,0 +1,617 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="save" content="history">
+    <link rel="stylesheet" href="{{url_for('static', filename='stylesheet.css')}}" type="text/css" charset="utf-8"/>
+    <script type="text/javascript">
+      function keydown_event(key){
+        var a=key
+      }
+      function keyup_event(key){
+        var a=key
+      }
+    </script>
+    <style type="text/css">
+      html {
+        height: 100%;
+        width:  100%;
+        overflow: hidden;
+      }
+      body {
+	font-family: "ubunturegular", Times, serif;
+        height: 100%;
+        width:  100%;
+        background-color: black;
+	background-image: {{url_for('static', filename='Core.png')}}
+      }
+      #div_appbar {
+        width:  100%;
+      }
+      #div_streamer {
+        background: url(http://{{host}}:8765/mjpg) no-repeat center top; 
+        background-size: auto 100%;
+        background-color: 0;
+	top: 0;
+        left: 15%;
+        width:  70%;
+        height:  100%;
+        position: fixed;
+      }
+
+      #div_controls_left {
+        background-color: black;
+        color: white;
+	top: 0;
+        left: 0;
+        width: 15%;
+        height: 100%;
+        position: fixed;
+      }
+      #div_controls_right {
+        background-color: black;
+	color: white;
+	top: 0;
+        right: 0;
+        width: 15%;
+        height: 100%;
+        position: fixed;
+      }
+      #dev_streamer_canonical {
+        
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+      #div_control {
+        width:  100%;
+        position: absolute;
+        bottom: 0;
+      }
+      #button_opacity {
+        opacity: 0.4;
+      }
+      table {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+     }
+     td {
+	text-align: center;
+	vertical-align: top;
+	align-items: center;
+	align-content: center;
+     }
+     #stop {
+	height: 25px;
+	width: 60px;
+	background-color: red;
+	border-radius: 15px;
+	border: 4px solid #FFFFFF;
+     }
+     #forward1, #backward1 {
+	height: 25px;
+	width: 75px;
+	background-color: black;
+	border-radius: 15px;
+	border: 4px solid #FFFFFF;
+     }
+     #forward2, #backward2 {
+	height: 25px;
+	width: 90px;
+	background-color: black;
+	border-radius: 15px;
+	border: 4px solid #FFFFFF;
+     }
+     #forward3, #backward3 {
+	height: 25px;
+	width: 105px;
+	background-color: black;
+	border-radius: 15px;
+	border: 4px solid #FFFFFF;
+     }
+      #triangle-down {
+      width: 0;
+      height: 0;
+      border-left: 60px solid transparent;
+      border-right: 60px solid transparent;
+      border-top: 35px solid orange;
+    }
+    #triangle-up {
+      width: 0;
+      height: 0;
+      border-left: 60px solid transparent;
+      border-right: 60px solid transparent;
+      border-bottom: 35px solid green;
+    }
+    </style>
+  </head>
+
+    <script type="text/javascript">
+      var socket = new WebSocket('ws://' + location.hostname + ':5001/socket');
+       
+      // This is our initialization routine, needs to happen after the page is loaded
+      function initialize() {
+	//run_action('setup');
+	// These will trip our web sockets
+      	//run_action('bwready');
+      	//run_action('fwready');
+      	//run_action('camready');
+	//document.getElementById('div_streamer').style.background=location.host + ":8765/mjpg)";
+      	var allowed = true;
+
+     	// Disables the contextual menu on long touches
+     	/*window.oncontextmenu = function(event) {
+     	event.preventDefault();
+     	event.stopPropagation();
+     	return false;
+     	};*/
+
+	//document.getElementById('splash').style.visibility = 'hidden';
+        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'up' }]));
+        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'down' }]));
+      	move2('reset', '0', 'reset');
+        console.log('initializing camera');
+        move3('camera','reset',0);
+        var streaming_url = 'http://' + location.hostname + ':8765/mjpg';
+        console.log('resetting background to ' +  streaming_url);
+        
+	document.getElementById('div_streamer').style.background="url('" + streaming_url + "') no-repeat center top"; 
+        document.getElementById('div_streamer').style.backgroundSize="auto 100%";
+        console.log('done');
+     }
+
+      function run_action(value){
+        var xmlHttp  = new XMLHttpRequest();
+        var protocol  = window.location.protocol;
+        var host      = window.location.host;
+        var pathname  = window.location.pathname;
+        url = protocol + "//" + host + pathname + "?action" + "=" + value;
+        //document.getElementById("debug").innerHTML=url;
+        xmlHttp.open( "GET", url, false );
+        xmlHttp.send( null );
+        return xmlHttp.responseText;
+      }
+      function set_speed(value){
+        var xmlHttp  = new XMLHttpRequest();
+        var protocol  = window.location.protocol;
+        var host      = window.location.host;
+        var pathname  = window.location.pathname;
+        url = protocol + "//" + host + pathname + "?speed" + "=" + value;
+        //document.getElementById("debug").innerHTML=url;
+        xmlHttp.open( "GET", url, false );
+        xmlHttp.send( null );
+        return xmlHttp.responseText;
+      }
+      function keydown_event(key){
+        if (event.repeat != undefined) {
+          allowed = !event.repeat;
+        }
+        if (!allowed) return;
+        allowed = false;
+        if (key == 0){
+          var x;
+          if(window.event) { // IE8 以及更早版本
+            x=event.keyCode;
+          }
+          else if(event.which) {// IE9/Firefox/Chrome/Opera/Safari
+            x=event.which;
+          }
+          var keychar=String.fromCharCode(x);
+        }
+        else{
+          keychar = key
+        }
+        switch(keychar){
+          case 'W':
+            run_action('forward')
+            break;
+          case 'S':
+            run_action('backward')
+            break;
+          case 'A':
+            run_action('fwleft')
+            break;
+          case 'D':
+            run_action('fwright')
+            break;
+          case '&':
+            run_action('camup')
+            break;
+          case '(':
+            run_action('camdown')
+            break;
+          case "'":
+            run_action('camright')
+            break;
+          case '%':
+            run_action('camleft')
+            break;
+          case '1':
+            set_speed('40')
+            break;
+          case '2':
+            set_speed('55')
+            break;
+          case '3':
+            set_speed('70')
+            break;
+          case '4':
+            set_speed('85')
+            break;
+          case '5':
+            set_speed('100')
+            break;
+        }
+      }
+      function keyup_event(key){
+        allowed = true;
+        if (key == 0){
+          var x;
+          if(window.event) { // IE8 以及更早版本
+            x=event.keyCode;
+          }
+          else if(event.which) {// IE9/Firefox/Chrome/Opera/Safari
+            x=event.which;
+          }
+          var keychar=String.fromCharCode(x);
+        }
+        else{
+          keychar = key
+        }
+        switch(keychar){
+          case 'W':
+            run_action('stop')
+            break;
+          case 'S':
+            run_action('stop')
+            break;
+          case 'A':
+            run_action('fwstraight')
+            break;
+          case 'D':
+            run_action('fwstraight')
+            break;
+          case '&':
+            run_action('camready')
+            break;
+          case '(':
+            run_action('camready')
+            break;
+          case "'":
+            run_action('camready')
+            break;
+          case '%':
+            run_action('camready')
+            break;
+        }
+      }
+      function forward_left(){
+        run_action('forward')
+        run_action('fwleft')
+      }
+      function forward_right(){
+        run_action('forward')
+        run_action('fwright')
+      }
+      function backward_left(){
+        run_action('backward')
+        run_action('fwleft')
+      }
+      function backward_right(){
+        run_action('backward')
+        run_action('fwright')
+      }
+      function camup_left(){
+        run_action('camup')
+        run_action('camleft')
+      }
+      function camup_right(){
+        run_action('camup')
+        run_action('camright')
+      }
+      function camdown_left(){
+        run_action('camdown')
+        run_action('camleft')
+      }
+      function camdown_right(){
+        run_action('camdown')
+        run_action('camright')
+      }
+      function stop(){
+        run_action('stop')
+        run_action('fwstraight')
+      }
+
+      function toggle(targetid){
+        if (document.getElementById){
+          target=document.getElementById(targetid);
+            if (target.style.display=="block"){
+              target.style.display="none";
+            } else {
+              target.style.display="block";
+            }
+        }
+      }
+
+    var lastMovement = 0;
+    var timeOut = 200;
+
+    function sleep (time) {
+  	//return new Promise((resolve) => setTimeout(resolve, time));
+	setTimeout(function() { console.log('waited');}, timeOut);
+    }
+
+    function sequentialLightsUp(movement) {
+	for (var i=1; i <= movement && i < 4; i++){
+		var target = document.getElementById("forward" + i);
+		target.style.backgroundColor = "green";
+		//sleep(200);
+		}
+	switch(movement) {
+		case 1:
+			set_speed(55);
+			break;
+		case 2:
+			set_speed(70);
+			break;
+		case 3:
+			set_speed(85);
+			break;
+		case 4:
+			set_speed(100);
+			break;		
+		
+	}
+	
+	run_action('backward');
+	
+    }
+
+    function sequentialLightsDown(movement) {
+    	for (var i=-1; i >= movement && i > -4; i--) {
+		var target = document.getElementById("backward" + (i*-1));
+		target.style.backgroundColor = "orange";
+		sleep(200);
+	}
+	switch(movement) {
+		case 1:
+			set_speed(55);
+			break;
+		case 2:
+			set_speed(70);
+			break;
+		case 3:
+			set_speed(85);
+			break;
+		case 4:
+			set_speed(100);
+			break;		
+		
+	}
+	run_action('forward');
+    }
+
+    function sequentialLightUpClose(){
+	for (var i=3; i > 0; i--){
+		var target = document.getElementById("forward" + i);
+		target.style.backgroundColor = "black";
+		sleep(200);
+	}
+	
+	stop();
+    }
+
+    function sequentialLightDownClose(){
+	for (var i=-3; i < 0; i++){
+		var target = document.getElementById("backward" + (i*-1));
+		target.style.backgroundColor = "black";
+		sleep(200);
+	}
+	stop();
+    }
+
+    function move(movement) {
+	
+	if (movement == 0){
+		var thisMovement = lastMovement;
+		lastMovement = movement;
+		if (thisMovement > 0)
+			sequentialLightUpClose();
+		else sequentialLightDownClose();
+	}
+	else 
+	{
+	if (movement > 0){
+		lastMovement = movement;
+		sequentialLightsUp(movement);
+		
+	}
+	else
+	{
+		lastMovement = movement;
+		sequentialLightsDown(movement);
+	}
+	}
+		
+    }
+
+    function turnLeft(movement)
+    {
+	run_action('fwleft');
+	setTimeout(function () {move(movement);}, 1000);
+    }
+
+
+    function turnRight(movement)
+    {
+	run_action('fwright');
+	setTimeout(function () {move(movement);}, 1000);
+    }
+
+    var semaphore = 0; // Only process one command at a time
+
+    function move3(action, orientation, speed) {
+       var myDict = {'action':action, 'orientation':orientation, 'speed':speed};
+       console.log('sending '+ myDict);
+       socket.send(JSON.stringify(myDict))
+       
+    }
+    
+    function move2(direction, speed, steering) {
+        if (semaphore) setTimeout(function () { console.log('semaphore red');}, 200);
+        semaphore = 1;
+        var commands = [];
+	console.log('move2 ' + direction + ' ' + speed + ' ' + steering); 
+
+        // Then set the steering wheel left right or straight
+        if (steering == 'straight') commands.push('{"target":"steering", "action": "straight"}');
+        if (steering == 'left') commands.push('{"target":"steering", "action": "left"}');
+        if (steering == 'right') commands.push('{"target":"steering", "action": "right"}');
+        if (steering == 'reset') commands.push('{"target":"steering", "action": "reset"}');
+
+        if (direction == 'forward') commands.push('{"target":"motion", "action": "forward"}');
+        if (direction == 'backward') commands.push('{"target":"motion", "action": "backward"}');
+        if (direction == 'stop') commands.push('{"target":"motion", "action": "stop"}');
+        if (direction == 'reset') commands.push('{"target":"motion", "action": "reset"}');
+
+        // First set the speed
+        commands.push("{\"target\":\"speed\", \"action\":\"" + speed +"\"}");
+
+	
+	console.log('commands: ' + commands);
+        
+	// Hold until you know you are clear to proceed
+        /*if (counter == -1) counter = 0;
+        else {
+           socket.onmessage = function (event) { console.log(event.data); console++; } 
+        }*/
+        /*
+        if (socket.readyState != 1){
+             console.log('new socket');
+             socket =  new WebSocket('ws://' + location.hostname + ':5001/socket');
+             socket.onopen = () => socket.send(JSON.stringify(commands))}
+        else socket.send(JSON.stringify(commands));
+	console.log('sent');
+        semaphore = 0;*/
+    }
+    </script>
+
+  <body onload='initialize()' onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
+    
+<script type="text/javascript">
+      	// This needs to be called from here otherwise the cam is never being shown
+	/*run_action('setup');
+      	run_action('bwready');
+      	run_action('fwready');
+      	run_action('camready');*/
+      	var allowed = true;
+	
+     	/*// Disables the contextual menu on long touches
+     	window.oncontextmenu = function(event) {
+     	event.preventDefault();
+     	event.stopPropagation();
+     	return false;
+     	}*/
+	//document.getElementById('splash').style.visibility = 'hidden';
+	//console.log('trying sockets');
+	/*var socket = new WebSocket('ws://' + location.hostname + ':5001/socket');
+        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'up' }]));
+        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'down' }]));
+      	move2('motion',0,'reset');*/
+        //var speed_socket = new WebSocket('ws://' + location.hostname + ':5001/set_speed');
+     </script>
+
+<div id="div_controls_left">
+<table border="0">
+	<tr><td>
+		<img src="{{url_for('static', filename='Core.png')}}" style="position:relative; width: 100%; height:auto;">	
+		<h2>Core Car</h2>
+	</td></tr>
+	<tr><td><h3>Camera</h3>
+	<table border="0" style="position: relative; height: 180px;">
+	<tr>
+		<td><img src="{{url_for('static', filename='up-left.png')}}" onmousedown="camup_left();" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="camup_left();" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='up.png')}}" onmousedown="run_action('camup')" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="run_action('camup')" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='up-right.png')}}" onmousedown="camup_right();" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="camup_right();" ontouchend="run_action('camready')" width="40" height="40"></td>
+	</tr><tr>
+		<td><img src="{{url_for('static', filename='left.png')}}" onmousedown="run_action('camleft')" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="run_action('camleft')" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='camera.png')}}" onmousedown="run_action('camready')" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="run_action('camready')" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='right.png')}}" onmousedown="run_action('camright')" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="run_action('camright')" ontouchend="run_action('camready')" width="40" height="40"></td>
+	</tr><tr>
+		<td><img src="{{url_for('static', filename='down-left.png')}}" onmousedown="camdown_left();" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="camdown_left();" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='down.png')}}" onmousedown="run_action('camdown')" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="run_action('camdown')" ontouchend="run_action('camready')" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='down-right.png')}}" onmousedown="camdown_right();" onmouseup="run_action('camready')" onmouseout="run_action('camready')" ontouchstart="camdown_right();" ontouchend="run_action('camready')" width="40" height="40"></td>
+	</tr></table>
+	</td></tr>
+	<tr><td><a href="https://www.flaticon.com/free-icons/down" title="down icons">Down icons created by Freepik - Flaticon</a></td></tr>
+</table>
+</div>
+<div id="div_streamer"></div>
+<div id="div_controls_right">
+<table border="0">
+	<tr><td><h3>Based on<br>SunFounder's<br>PiCar-V</h3></td></tr>
+	<tr><td style="vertical-align: top;">
+	<h3>Speed</h3>
+	<center>
+
+		<table border=0 style="width: 100%; height:0;"><tr>
+		<td> <div onmousedown="turnLeft(4);" ontouchstart="turnLeft(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="triangle-up" onmousedown="move3('forward','straight', 100);" ontouchstart="move3('forward','straight',100);" ontouchend="move3('reset','straight',0);" onmouseup="move3('reset','straight',0);" onmouseout="move3('reset','straight', 0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(4);" ontouchstart="turnRight(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="turnLeft(3);" ontouchstart="turnLeft(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="forward3" onmousedown="move(3);" ontouchstart="move(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(3);" ontouchstart="turnRight(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="turnLeft(2);" ontouchstart="turnLeft(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="forward2" onmousedown="move(2);" ontouchstart="move(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(2);" ontouchstart="turnRight(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="turnLeft(1);" ontouchstart="turnLeft(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="forward1" onmousedown="move(1);" ontouchstart="move(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(1);" ontouchstart="turnRight(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br><br>
+		
+		<div id="stop" align="center" onmousedown="move(0);" ontouchstart="move(0);"></div><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="turnLeft(-1);" ontouchstart="turnLeft(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="backward1" onmousedown="move(-1);" ontouchstart="move(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(-1);" ontouchstart="turnRight(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="turnLeft(-2);" ontouchstart="turnLeft(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="backward2" onmousedown="move(-2);" ontouchstart="move(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(-2);" ontouchstart="turnRight(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="turnLeft(-3);" ontouchstart="turnLeft(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="backward3" onmousedown="move(-3);" ontouchstart="move(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(-3);" ontouchstart="turnRight(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br><br>
+
+		<table border=0 width="100%"><tr>
+		<td><div onmousedown="turnLeft(-4);" ontouchstart="turnLeft(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="triangle-down" onmousedown="move(-4);" ontouchstart="move(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnRight(-4);" ontouchstart="turnRight(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
+		</tr></table><br><br><br>
+
+	</center>
+	</td></tr>
+	<tr><td style="height: 18%;"></td></tr>
+</table>
+</div> 
+</body>
+</html>
