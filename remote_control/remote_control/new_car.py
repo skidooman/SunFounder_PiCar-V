@@ -33,11 +33,8 @@ in_motion = 0
 
 @sock.route('/socket')
 def socket(sock):
-    # Setup procedure - I think this is important to call it here
-    #picar.setup()
     # These are globals for the camera, back wheels (move the car) and the front wheels (steering)
     db_file = "remote_control/drive/config"
-    #mycam = camera.Camera(debug=False, db=db_file)
     motion = picar.back_wheels.Back_Wheels(debug=False, db=db_file)
     steering = picar.front_wheels.Front_Wheels(debug=False, db=db_file)
     
@@ -52,23 +49,6 @@ def socket(sock):
         # to improve the stability
         picar.setup()
 
-        # An activity here can be either for the camera or the rear wheels
-        # So, if action is NOT camera, it is automatically read wheels 
-        # We only worry about front wheels when we are moving, so when we are
-        # activating the read wheels
-        '''if myDict['action'] == 'camera':
-           if myDict['orientation'] == 'reset':
-              mycam.ready()
-           else:
-              if myDict['orientation'] == 'up':
-                 mycam.turn_up()
-              elif myDict['orientation'] == 'down':
-                 mycam.turn_down()
-              if myDict['speed'] == 'left':
-                 mycam.turn_left()
-              elif myDict['speed'] == 'right':
-                 mycam.turn_right()
-        else:'''
         # These are all the actions that concern the rear wheels
         # Essentially, the car can go forward, backward, stop or reset
         if myDict['action'] == 'forward':
@@ -176,8 +156,6 @@ class Vilib(object):
         print ('Web site starts')
         my_website = Process(name='my_website', target=website_start)
         my_website.start()
-        #speed_socket = Process(name='my_second_socket', target=speed_socket_start)
-        #speed_socket.start()
         print ('sockets started')
 
     
@@ -208,8 +186,6 @@ class Vilib(object):
 if __name__ == "__main__":
     # Calling that method will instantiate three server ports too
     Vilib.camera_start()
-
-    #app.run(host='0.0.0.0', port=80)
-    
+   
     while True:
         pass
