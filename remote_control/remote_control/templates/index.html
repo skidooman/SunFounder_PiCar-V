@@ -137,16 +137,19 @@
       // This is our initialization routine, needs to happen after the page is loaded
       function initialize() {
      	// Disables the contextual menu on long touches
-     	/*window.oncontextmenu = function(event) {
-     	event.preventDefault();
-     	event.stopPropagation();
-     	return false;
-     	};*/
-        console.log('initializing camera');
+        // Disable that code if you need to debug
+     	window.oncontextmenu = function(event) {
+     	   event.preventDefault();
+     	   event.stopPropagation();
+     	   return false;
+     	};
+
+        console.log('initializing sockets');
         // Won't do anything, we just want the sockets open
         socket.onopen = () => socket.send('{"action":"camera", "orientation":"up","speed":0}');
         cam_socket.onopen = () => cam_socket.send('{"vertical":"none", "horizontal":"none"}');
 
+        // The background also needs to be reset to the camera feed
         var streaming_url = 'http://' + location.hostname + ':8765/mjpg';
         console.log('resetting background to ' +  streaming_url);
 	document.getElementById('div_streamer').style.background="url('" + streaming_url + "') no-repeat center top"; 
@@ -176,6 +179,9 @@
         xmlHttp.send( null );
         return xmlHttp.responseText;
       }
+
+      // This function enables us to use the keyboard instead of the GUI to control
+      var previousSpeed = 100;
       function keydown_event(key){
         if (event.repeat != undefined) {
           allowed = !event.repeat;
@@ -196,44 +202,41 @@
           keychar = key
         }
         switch(keychar){
-          case 'W':
-            run_action('forward')
+          case 'D': // As in Drive
+            move3('forward', 'straight', previousSpeed);
             break;
-          case 'S':
-            run_action('backward')
+          case 'R': // As in Reverse
+            move3('backward', 'straight', previousSpeed);
             break;
-          case 'A':
-            run_action('fwleft')
+          case 'L': // As in Left
+            move3('forward', 'left', previousSpeed); 
             break;
-          case 'D':
-            run_action('fwright')
+          case 'T': // As in righT
+            move3('forward', 'right', previousSpeed);
             break;
-          case '&':
-            run_action('camup')
+          case 37: // Key left
+            cammove('0', 'left');
             break;
-          case '(':
-            run_action('camdown')
+          case 38: // Key up
+            cammove('up', '0');
             break;
-          case "'":
-            run_action('camright')
+          case 39: // Key right
+            cammove('0', 'right');
             break;
-          case '%':
-            run_action('camleft')
+          case 40: // Key down
+            cammove('down', '0');
             break;
           case '1':
-            set_speed('40')
+            previousSpeed = 40;
             break;
           case '2':
-            set_speed('55')
+            previousSpeed = 60;
             break;
           case '3':
-            set_speed('70')
+            previousSpeed = 80;
             break;
           case '4':
-            set_speed('85')
-            break;
-          case '5':
-            set_speed('100')
+            previousSpeed = 100;
             break;
         }
       }
@@ -253,85 +256,26 @@
           keychar = key
         }
         switch(keychar){
-          case 'W':
-            run_action('stop')
-            break;
-          case 'S':
-            run_action('stop')
-            break;
-          case 'A':
-            run_action('fwstraight')
-            break;
           case 'D':
-            run_action('fwstraight')
+          case 'R':
+          case 'L':
+          case 'T':
+            move3('stop', 'straight', 0);
             break;
-          case '&':
-            run_action('camready')
-            break;
-          case '(':
-            run_action('camready')
-            break;
-          case "'":
-            run_action('camready')
-            break;
-          case '%':
-            run_action('camready')
+          case 37:
+          case 38:
+          case 39:
+          case 40:
+            cammove('reset','0');
             break;
         }
-      }
-      function forward_left(){
-        run_action('forward')
-        run_action('fwleft')
-      }
-      function forward_right(){
-        run_action('forward')
-        run_action('fwright')
-      }
-      function backward_left(){
-        run_action('backward')
-        run_action('fwleft')
-      }
-      function backward_right(){
-        run_action('backward')
-        run_action('fwright')
-      }
-      function camup_left(){
-        run_action('camup')
-        run_action('camleft')
-      }
-      function camup_right(){
-        run_action('camup')
-        run_action('camright')
-      }
-      function camdown_left(){
-        run_action('camdown')
-        run_action('camleft')
-      }
-      function camdown_right(){
-        run_action('camdown')
-        run_action('camright')
-      }
-      function stop(){
-        run_action('stop')
-        run_action('fwstraight')
       }
 
-      function toggle(targetid){
-        if (document.getElementById){
-          target=document.getElementById(targetid);
-            if (target.style.display=="block"){
-              target.style.display="none";
-            } else {
-              target.style.display="block";
-            }
-        }
-      }
 
     var lastMovement = 0;
     var timeOut = 200;
 
     function sleep (time) {
-  	//return new Promise((resolve) => setTimeout(resolve, time));
 	setTimeout(function() { console.log('waited');}, timeOut);
     }
 
@@ -340,50 +284,19 @@
 		var target = document.getElementById("forward" + i);
 		target.style.backgroundColor = "green";
 		//sleep(200);
-		}
-	switch(movement) {
-		case 1:
-			set_speed(55);
-			break;
-		case 2:
-			set_speed(70);
-			break;
-		case 3:
-			set_speed(85);
-			break;
-		case 4:
-			set_speed(100);
-			break;		
-		
-	}
-	
-	run_action('backward');
-	
+        }	
+		 
     }
-
+	
     function sequentialLightsDown(movement) {
     	for (var i=-1; i >= movement && i > -4; i--) {
 		var target = document.getElementById("backward" + (i*-1));
 		target.style.backgroundColor = "orange";
 		sleep(200);
 	}
-	switch(movement) {
-		case 1:
-			set_speed(55);
-			break;
-		case 2:
-			set_speed(70);
-			break;
-		case 3:
-			set_speed(85);
-			break;
-		case 4:
-			set_speed(100);
-			break;		
 		
-	}
-	run_action('forward');
     }
+
 
     function sequentialLightUpClose(){
 	for (var i=3; i > 0; i--){
@@ -391,8 +304,6 @@
 		target.style.backgroundColor = "black";
 		sleep(200);
 	}
-	
-	stop();
     }
 
     function sequentialLightDownClose(){
@@ -401,45 +312,6 @@
 		target.style.backgroundColor = "black";
 		sleep(200);
 	}
-	stop();
-    }
-
-    function move(movement) {
-	
-	if (movement == 0){
-		var thisMovement = lastMovement;
-		lastMovement = movement;
-		if (thisMovement > 0)
-			sequentialLightUpClose();
-		else sequentialLightDownClose();
-	}
-	else 
-	{
-	if (movement > 0){
-		lastMovement = movement;
-		sequentialLightsUp(movement);
-		
-	}
-	else
-	{
-		lastMovement = movement;
-		sequentialLightsDown(movement);
-	}
-	}
-		
-    }
-
-    function turnLeft(movement)
-    {
-	run_action('fwleft');
-	setTimeout(function () {move(movement);}, 1000);
-    }
-
-
-    function turnRight(movement)
-    {
-	run_action('fwright');
-	setTimeout(function () {move(movement);}, 1000);
     }
 
     var semaphore = 0; // Only process one command at a time
@@ -487,46 +359,9 @@
        console.log('done')
     }   
     
-    function move2(direction, speed, steering) {
-        if (semaphore) setTimeout(function () { console.log('semaphore red');}, 200);
-        semaphore = 1;
-        var commands = [];
-	console.log('move2 ' + direction + ' ' + speed + ' ' + steering); 
+</script>
 
-        // Then set the steering wheel left right or straight
-        if (steering == 'straight') commands.push('{"target":"steering", "action": "straight"}');
-        if (steering == 'left') commands.push('{"target":"steering", "action": "left"}');
-        if (steering == 'right') commands.push('{"target":"steering", "action": "right"}');
-        if (steering == 'reset') commands.push('{"target":"steering", "action": "reset"}');
-
-        if (direction == 'forward') commands.push('{"target":"motion", "action": "forward"}');
-        if (direction == 'backward') commands.push('{"target":"motion", "action": "backward"}');
-        if (direction == 'stop') commands.push('{"target":"motion", "action": "stop"}');
-        if (direction == 'reset') commands.push('{"target":"motion", "action": "reset"}');
-
-        // First set the speed
-        commands.push("{\"target\":\"speed\", \"action\":\"" + speed +"\"}");
-
-	
-	console.log('commands: ' + commands);
-        
-	// Hold until you know you are clear to proceed
-        /*if (counter == -1) counter = 0;
-        else {
-           socket.onmessage = function (event) { console.log(event.data); console++; } 
-        }*/
-        /*
-        if (socket.readyState != 1){
-             console.log('new socket');
-             socket =  new WebSocket('ws://' + location.hostname + ':5001/socket');
-             socket.onopen = () => socket.send(JSON.stringify(commands))}
-        else socket.send(JSON.stringify(commands));
-	console.log('sent');
-        semaphore = 0;*/
-    }
-    </script>
-
-  <body onload='initialize()' onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
+<body onload='initialize()' onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
     
 <script type="text/javascript">
       	// This needs to be called from here otherwise the cam is never being shown
