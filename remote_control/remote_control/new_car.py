@@ -34,7 +34,7 @@ in_motion = 0
 @sock.route('/socket')
 def socket(sock):
     # Setup procedure - I think this is important to call it here
-    picar.setup()
+    #picar.setup()
     # These are globals for the camera, back wheels (move the car) and the front wheels (steering)
     db_file = "remote_control/drive/config"
     mycam = camera.Camera(debug=False, db=db_file)
@@ -47,28 +47,51 @@ def socket(sock):
         data = sock.receive()
         print ('Socket received: %s' % data)
         myDict = json.loads(data)
-        print (myDict)
+        
+        # Calling setup systematically before issuing low-level calls seems
+        # to improve the stability
+        picar.setup()
+
+        # An activity here can be either for the camera or the rear wheels
+        # So, if action is NOT camera, it is automatically read wheels 
+        # We only worry about front wheels when we are moving, so when we are
+        # activating the read wheels
         if myDict['action'] == 'camera':
            if myDict['orientation'] == 'reset':
-              print ('ensuring cam is ready')
               mycam.ready()
+           else:
+              if myDict['orientation'] == 'up':
+                 mycam.turn_up()
+              elif myDict['orientation'] == 'down':
+                 mycam.turn_down()
+              if myDict['speed'] == 'left':
+                 mycam.turn_left()
+              elif myDict['speed'] == 'right':
+                 mycam.turn_right()
+        else:
+           # These are all the actions that concern the rear wheels
+           # Essentially, the car can go forward, backward, stop or reset
+           if myDict['action'] == 'forward':
+              motion.forward()
+              motion.speed = int(myDict['speed'])
+           elif myDict['action'] == 'backward':
+              motion.backward()
+              motion.speed = int(myDict['speed'])
+           elif myDict['action'] == 'stop':
+              motion.stop()
+              steering.turn_straight()
+           elif myDict['action'] == 'reset':
+              motion.ready()
+              steering.reset()
 
-        # These are all the actions that concern the rear wheels
-        # Essentially, the car can go forward, backward, stop or reset
-        elif myDict['action'] == 'forward':
-           print ('forward')
-           motion.forward()
-           motion.speed = int(myDict['speed'])
-        elif myDict['action'] == 'backward':
-           print ('backward')
-           motion.backward()
-           motion.speed = int(myDict['speed'])
-        elif myDict['action'] == 'stop':
-           print ('stop')
-           motion.stop()
-        elif myDict['action'] == 'reset':
-           print ('reset')
-           motion.ready()
+           # Front wheels are in charge of direction (steering)
+           # Valid values are left, right and straight
+           if myDict['orientation'] == 'left':
+              time.sleep(1)
+              steering.turn_left()
+           elif myDict['orientation'] == 'right':
+              time.sleep(1)
+              steering.turn_right()
         sock.send('done')
 
 def socket_start():
