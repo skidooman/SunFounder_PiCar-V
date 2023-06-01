@@ -15,6 +15,7 @@ is_installed_flask=False
 is_installed_python_smbus=False
 is_installed_python_opencv=False
 is_installed_python_rpi=False
+is_installed_python_flask_sock=False
 is_installed_libjpeg8_dev=False
 
 
@@ -132,7 +133,7 @@ else
     echo -e "    Do you want to skip this? \c"
     if_continue
     if [ $? = 1 ] ; then
-        echo -e "    Skipped python-opencv installation."
+        echo -e "    Skipped RPI.GPIO installation."
     else
         end
     fi
@@ -142,13 +143,29 @@ fi
 echo -e "\nInstalling Flask \n"
 if sudo pip3 install flask -y; then
     echo -e "    Successfully installed Flask \n"
-    is_installed_python_rpi=true
+    is_installed_python_false=true
 else
     echo -e "    Failed to installed Flask \n"
     echo -e "    Do you want to skip this? \c"
     if_continue
     if [ $? = 1 ] ; then
-        echo -e "    Skipped python-opencv installation."
+        echo -e "    Skipped Flask installation."
+    else
+        end
+    fi
+fi
+
+
+echo -e "\nInstalling Flask-Sock \n"
+if sudo pip3 install flask-sock -y; then
+    echo -e "    Successfully installed Flask-Sock \n"
+    is_installed_python_flask_sock=true
+else
+    echo -e "    Failed to installed Flask-Sock \n"
+    echo -e "    Do you want to skip this? \c"
+    if_continue
+    if [ $? = 1 ] ; then
+        echo -e "    Skipped Flask-Sock installation."
     else
         end
     fi

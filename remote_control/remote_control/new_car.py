@@ -8,7 +8,6 @@ from multiprocessing import Process, Manager
 import time
 import datetime
 from driver import camera, stream
-from picar import back_wheels, front_wheels
 import picar, json
 
 app = Flask(__name__)
@@ -29,30 +28,42 @@ def gen():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-db_file = "remote_control/drive/config"
 
-myDict = {}
 in_motion = 0
 
 @sock.route('/socket')
 def socket(sock):
-    print ('socket activated')
-    print (sock)
+    # Setup procedure - I think this is important to call it here
+    picar.setup()
+    # These are globals for the camera, back wheels (move the car) and the front wheels (steering)
+    db_file = "remote_control/drive/config"
+    mycam = camera.Camera(debug=False, db=db_file)
+    motion = picar.back_wheels.Back_Wheels(debug=False, db=db_file)
+    steering = picar.front_wheels.Front_Wheels(debug=False, db=db_file)
+    
+    print ('socket activated ')
     while True:
         print ('Socket waiting for instructions')
         data = sock.receive()
-        print ('DATA: %s' % data)
-        global myDict
+        print ('Socket received: %s' % data)
         myDict = json.loads(data)
+        print (myDict)
         if myDict['action'] == 'camera':
            if myDict['orientation'] == 'reset':
               print ('ensuring cam is ready')
               mycam.ready()
         if myDict['action'] == 'forward':
-           motion.speed = int(myDict['speed'])
+           print ('forward')
+           #motion.speed = int(myDict['speed'])
            motion.forward()
+           motion.speed = 90
+           print ('done')
+        elif myDict['action'] == 'stop':
+           motion.stop()
         elif myDict['action'] == 'reset':
+           print ('ready')
            motion.ready()
+        sock.send('done')
         #performActions(myDict, cam, motion, steering)
         #processor = Process(name='processor',target=performActions)
         #processor.start()
@@ -62,56 +73,6 @@ def socket(sock):
 def socket_start():
    app.run(host='0.0.0.0', port=5001, threaded=True)
 
-def performActions():
-   global mycam, motion, steering, myDict, in_motion
-   print ('processing %s' % myDict)
-   for entry in myDict:
-        if type(entry) == str:
-           entry = json.loads(entry)
-        if entry['target'] == 'camera':
-           if entry['action'] == 'up':
-              mycam.turn_up(20)
-           elif entry['action'] == 'down':
-              mycam.turn_down(20)
-           elif entry['action'] == 'left':
-              mycam.turn_left(20)
-           elif entry['action'] == "right":
-              mycam.turn_right(20)
-           elif entry['action'] == "reset":
-              mycam.ready()
-        elif entry['target'] == 'steering':
-           if entry['action'] == 'turn_left':
-              steering.turn_left()
-           elif entry['action'] == 'turn_right':
-              steering.turn_right()
-           elif entry['action'] == 'reset':
-              steering.ready()
-        elif entry['target'] == 'motion':
-           if entry['action'] == 'forward':
-              motion.forward()
-           elif entry['action'] == 'backward':
-              motion.backward()
-
-           elif entry['action'] == 'stop':
-              motion.stop()
-              in_motion = 0
-           elif entry['action'] == 'reset':
-              motion.ready()
-              in_motion = 0
-        elif entry['target'] == 'speed' and entry['action'] != '0' and in_motion == 0:
-              print ('speed: %i' % int(entry['action']))
-              newSpeed = int(entry['action'])
-              if newSpeed > 99:
-                 newSpeed = 80
-              motion._speed = newSpeed
-              ''' Set moving speeds '''
-              motion.left_wheel.speed = motion._speed
-              motion.right_wheel.speed = motion._speed
-              print ('We are cruising!')
-              #motion.set_speed(int(entry['action']))
-              in_motion = 1 
-        #time.sleep(0.2)
-   print ('done with %s' % myDict)
 
 @app.route('/mjpg')
 def video_feed():
@@ -184,9 +145,7 @@ class Vilib(object):
             Vilib.img_array[0] = img
 
 if __name__ == "__main__":
-    mycam = camera.Camera(debug=False, db=db_file)
-    motion = back_wheels.Back_Wheels(debug=True, db=db_file)
-    steering = front_wheels.Front_Wheels(debug=False, db=db_file)
+    # Calling that method will instantiate three server ports too
     Vilib.camera_start()
 
     #app.run(host='0.0.0.0', port=80)

@@ -120,8 +120,11 @@ def run(request):
 	host = get_ip()
 	return render_to_response("run.html", {'host': host})
 
-
 def run_canonical(request):
+	from .picar_v_video_stream import Vilib
+	Vilib.camera_start()
+	return render_to_response("run_canonical.html", {'host': get_ip()})
+	'''print (request)
 	global SPEED, bw_status
 	debug = ''
 	if 'action' in request.GET:
@@ -182,6 +185,7 @@ def run_canonical(request):
 	#host = stream.get_host().decode('utf-8').split(' ')[0]
 	host = get_ip()
 	return render_to_response("run_canonical.html", {'host': host})
+	'''
 
 def cali(request):
 	if 'action' in request.GET:

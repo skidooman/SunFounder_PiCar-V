@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'^run_canonical/$', views.run_canonical),
     url(r'^cali/$', views.cali),
     url(r'^connection_test/$', views.connection_test),
+    url(r'^socket/$', views.run_canonical),
 ]

@@ -135,30 +135,19 @@
        
       // This is our initialization routine, needs to happen after the page is loaded
       function initialize() {
-	//run_action('setup');
-	// These will trip our web sockets
-      	//run_action('bwready');
-      	//run_action('fwready');
-      	//run_action('camready');
-	//document.getElementById('div_streamer').style.background=location.host + ":8765/mjpg)";
-      	var allowed = true;
-
      	// Disables the contextual menu on long touches
      	/*window.oncontextmenu = function(event) {
      	event.preventDefault();
      	event.stopPropagation();
      	return false;
      	};*/
-
-	//document.getElementById('splash').style.visibility = 'hidden';
-        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'up' }]));
-        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'down' }]));
-      	move2('reset', '0', 'reset');
         console.log('initializing camera');
-        move3('camera','reset',0);
+        socket.onopen = () => socket.send('{"action":"camera", "orientation":"up","speed":0}');
+        //socket.send('{"action":"camera", "orientation":"reset", "speed":0}');
+        //socket.send('{"action":"reset", "orientation":"reset", "speed":0}');
+
         var streaming_url = 'http://' + location.hostname + ':8765/mjpg';
         console.log('resetting background to ' +  streaming_url);
-        
 	document.getElementById('div_streamer').style.background="url('" + streaming_url + "') no-repeat center top"; 
         document.getElementById('div_streamer').style.backgroundSize="auto 100%";
         console.log('done');
@@ -454,12 +443,36 @@
 
     var semaphore = 0; // Only process one command at a time
 
+    // This function communicates to the Core Car what to do
+    // It is implemented via Websockets
+    // Problem: if a user or a browser multiplies the calls to this
+    // function, it will clog our socket and cause the board to
+    // go to la-la-land
+    // Solution: have a in_motion semaphore. 0 when stopped, 1 otherwise
+    // Use this to mimimize communication
+    var in_motion = 0;
     function move3(action, orientation, speed) {
+       if (((action == 'forward' || action == 'backward') && speed && in_motion) || ((action == 'reset' || action == 'stop') && (!speed && !in_motion))){
+          // Here, the vehicle is moving and we want to move it, 
+          // or it is stopped and we want it to stop again
+          // We don't need to do anything
+          console.log('skipping ' + action + ' ' + speed);
+          return;
+       }
+       if (action == 'forward' || action == 'backward' || action == 'reset' || action == 'stop'){
+          if(speed) in_motion = 1;
+          else in_motion = 0;
+       }
        var myDict = {'action':action, 'orientation':orientation, 'speed':speed};
-       console.log('sending '+ myDict);
-       socket.send(JSON.stringify(myDict))
+       var myString = JSON.stringify(myDict);
+       console.log('sending '+ myString);
+       if (socket.readyState != 1) socket.onopen = () => {socket.send(myString);}
+       else socket.send(myString);
+       console.log('done')
        
     }
+
+    move3('camera','reset',0);
     
     function move2(direction, speed, steering) {
         if (semaphore) setTimeout(function () { console.log('semaphore red');}, 200);
@@ -560,7 +573,7 @@
 
 		<table border=0 style="width: 100%; height:0;"><tr>
 		<td> <div onmousedown="turnLeft(4);" ontouchstart="turnLeft(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="triangle-up" onmousedown="move3('forward','straight', 100);" ontouchstart="move3('forward','straight',100);" ontouchend="move3('reset','straight',0);" onmouseup="move3('reset','straight',0);" onmouseout="move3('reset','straight', 0);" align="center"></div></center></td>
+		<td align="center"><center><div id="triangle-up" onmousedown="move3('forward','straight', 100);" ontouchstart="move3('forward','straight',100);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(4);" ontouchstart="turnRight(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br><br>
 

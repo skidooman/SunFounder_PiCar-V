@@ -133,23 +133,29 @@
   </head>
 
     <script type="text/javascript">
+      var socket = new WebSocket('ws://' + location.hostname + ':5000/socket');
+       
       // This is our initialization routine, needs to happen after the page is loaded
       function initialize() {
-	run_action('setup');
-      	run_action('bwready');
-      	run_action('fwready');
-      	run_action('camready');
-	document.getElementById('div_streamer').style.background="url(http://{{ host }}:8765/mjpg) no-repeat center top";
+	//run_action('setup');
+	// These will trip our web sockets
+      	//run_action('bwready');
+      	//run_action('fwready');
+      	//run_action('camready');
+	//document.getElementById('div_streamer').style.background="url(http://{{ host }}:8765/mjpg) no-repeat center top";
       	var allowed = true;
 
      	// Disables the contextual menu on long touches
-     	window.oncontextmenu = function(event) {
+     	/*window.oncontextmenu = function(event) {
      	event.preventDefault();
      	event.stopPropagation();
      	return false;
-     	};
+     	};*/
 
-	document.getElementById('splash').style.visibility = 'hidden'
+	//document.getElementById('splash').style.visibility = 'hidden';
+        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'up' }]));
+        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'down' }]));
+      	move2('reset', '0', 'reset');
      }
 
       function run_action(value){
@@ -337,7 +343,7 @@
 	for (var i=1; i <= movement && i < 4; i++){
 		var target = document.getElementById("forward" + i);
 		target.style.backgroundColor = "green";
-		sleep(200);
+		//sleep(200);
 		}
 	switch(movement) {
 		case 1:
@@ -439,16 +445,56 @@
 	run_action('fwright');
 	setTimeout(function () {move(movement);}, 1000);
     }
+
+    var semaphore = 0; // Only process one command at a time
+    
+    function move2(direction, speed, steering) {
+        if (semaphore) setTimeout(function () { console.log('semaphore red');}, 200);
+        semaphore = 1;
+        var commands = [];
+	console.log('move2 ' + direction + ' ' + speed + ' ' + steering); 
+
+        // Then set the steering wheel left right or straight
+        if (steering == 'straight') commands.push('{"target":"steering", "action": "straight"}');
+        if (steering == 'left') commands.push('{"target":"steering", "action": "left"}');
+        if (steering == 'right') commands.push('{"target":"steering", "action": "right"}');
+        if (steering == 'reset') commands.push('{"target":"steering", "action": "reset"}');
+
+        if (direction == 'forward') commands.push('{"target":"motion", "action": "forward"}');
+        if (direction == 'backward') commands.push('{"target":"motion", "action": "backward"}');
+        if (direction == 'stop') commands.push('{"target":"motion", "action": "stop"}');
+        if (direction == 'reset') commands.push('{"target":"motion", "action": "reset"}');
+
+        // First set the speed
+        commands.push("{\"target\":\"speed\", \"action\":\"" + speed +"\"}");
+
+	
+	console.log('commands: ' + commands);
+        
+	// Hold until you know you are clear to proceed
+        /*if (counter == -1) counter = 0;
+        else {
+           socket.onmessage = function (event) { console.log(event.data); console++; } 
+        }*/
+
+        if (socket.readyState != 1){
+             console.log('new socket');
+             socket =  new WebSocket('ws://' + location.hostname + ':5000/socket');
+             socket.onopen = () => socket.send(JSON.stringify(commands))}
+        else socket.send(JSON.stringify(commands));
+	console.log('sent');
+        semaphore = 0;
+    }
     </script>
 
-  <body onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
+  <body onload='initialize()' onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
     
 <script type="text/javascript">
       	// This needs to be called from here otherwise the cam is never being shown
-	run_action('setup');
+	/*run_action('setup');
       	run_action('bwready');
       	run_action('fwready');
-      	run_action('camready');
+      	run_action('camready');*/
       	var allowed = true;
 	
      	/*// Disables the contextual menu on long touches
@@ -458,7 +504,12 @@
      	return false;
      	}*/
 	//document.getElementById('splash').style.visibility = 'hidden';
-	
+	//console.log('trying sockets');
+	/*var socket = new WebSocket('ws://' + location.hostname + ':5000/socket');
+        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'up' }]));
+        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'down' }]));
+      	move2('motion',0,'reset');*/
+        //var speed_socket = new WebSocket('ws://' + location.hostname + ':5001/set_speed');
      </script>
 
 <div id="div_controls_left">
@@ -496,7 +547,7 @@
 
 		<table border=0 style="width: 100%; height:0;"><tr>
 		<td> <div onmousedown="turnLeft(4);" ontouchstart="turnLeft(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="triangle-up" onmousedown="move(4);" ontouchstart="move(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td align="center"><center><div id="triangle-up" onmousedown="move2('forward','100','straight');" ontouchstart="move2('forward','100','straight');" ontouchend="move2('reset','0','straight');" onmouseup="move2('reset','0','straight');" onmouseout="move2('reset','0','straight');" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(4);" ontouchstart="turnRight(4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br><br>
 
