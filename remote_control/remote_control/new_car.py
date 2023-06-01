@@ -37,7 +37,7 @@ def socket(sock):
     #picar.setup()
     # These are globals for the camera, back wheels (move the car) and the front wheels (steering)
     db_file = "remote_control/drive/config"
-    mycam = camera.Camera(debug=False, db=db_file)
+    #mycam = camera.Camera(debug=False, db=db_file)
     motion = picar.back_wheels.Back_Wheels(debug=False, db=db_file)
     steering = picar.front_wheels.Front_Wheels(debug=False, db=db_file)
     
@@ -56,7 +56,7 @@ def socket(sock):
         # So, if action is NOT camera, it is automatically read wheels 
         # We only worry about front wheels when we are moving, so when we are
         # activating the read wheels
-        if myDict['action'] == 'camera':
+        '''if myDict['action'] == 'camera':
            if myDict['orientation'] == 'reset':
               mycam.ready()
            else:
@@ -68,35 +68,67 @@ def socket(sock):
                  mycam.turn_left()
               elif myDict['speed'] == 'right':
                  mycam.turn_right()
-        else:
-           # These are all the actions that concern the rear wheels
-           # Essentially, the car can go forward, backward, stop or reset
-           if myDict['action'] == 'forward':
-              motion.forward()
-              motion.speed = int(myDict['speed'])
-           elif myDict['action'] == 'backward':
-              motion.backward()
-              motion.speed = int(myDict['speed'])
-           elif myDict['action'] == 'stop':
-              motion.stop()
-              steering.turn_straight()
-           elif myDict['action'] == 'reset':
-              motion.ready()
-              steering.reset()
+        else:'''
+        # These are all the actions that concern the rear wheels
+        # Essentially, the car can go forward, backward, stop or reset
+        if myDict['action'] == 'forward':
+           motion.forward()
+           motion.speed = int(myDict['speed'])
+        elif myDict['action'] == 'backward':
+           motion.backward()
+           motion.speed = int(myDict['speed'])
+        elif myDict['action'] == 'stop':
+           motion.stop()
+           steering.turn_straight()
+        elif myDict['action'] == 'reset':
+           motion.ready()
+           steering.reset()
 
            # Front wheels are in charge of direction (steering)
            # Valid values are left, right and straight
-           if myDict['orientation'] == 'left':
-              time.sleep(1)
-              steering.turn_left()
-           elif myDict['orientation'] == 'right':
-              time.sleep(1)
-              steering.turn_right()
+        if myDict['orientation'] == 'left':
+           time.sleep(1)
+           steering.turn_left()
+        elif myDict['orientation'] == 'right':
+           time.sleep(1)
+           steering.turn_right()
         sock.send('done')
 
 def socket_start():
    app.run(host='0.0.0.0', port=5001, threaded=True)
 
+
+@sock.route('/socket')
+def socket_camera(sock):
+   db_file = "remote_control/drive/config"
+   cam = camera.Camera(debug=False, db=db_file)
+   print ('cam socket activated')
+   while True:
+        print ('Cam socket waiting for instructions')
+        data = sock.receive()
+        print ('Cam socket received: %s' % data)
+        myDict = json.loads(data)
+        
+        # Calling setup systematically before issuing low-level calls seems
+        # to improve the stability
+        picar.setup()
+
+        # Camera activity here shall be (1) up or down and (2) left or right
+        # There is also the reset case
+        if myDict['vertical'] == 'up':
+           cam.turn_up()
+        elif myDict['vertical'] == 'down':
+           cam.turn_down()
+        elif myDict['vertical'] == 'reset':
+           cam.ready()
+        
+        if myDict['horizontal'] == 'left':
+           cam.turn_left()
+        elif myDict['horizontal'] == 'right':
+           cam.turn_right()
+           
+def socket_camera_start():
+   app.run(host='0.0.0.0', port=5002, threaded=True)
 
 @app.route('/mjpg')
 def video_feed():
@@ -128,15 +160,20 @@ class Vilib(object):
     def camera_start(web_func = True):
         from multiprocessing import Process
        
+        print ('video stream starts')
         worker_2 = Process(name='worker 2',target=Vilib.camera_clone)
         if web_func == True:
             worker_1 = Process(name='worker 1',target=web_camera_start)
             worker_1.start()
         worker_2.start()
+
         print ('sockets start')
         my_socket = Process(name='my_socket',target=socket_start)
         my_socket.start()
-
+        cam_socket = Process(name='cam_socket', target=socket_camera_start)
+        cam_socket.start()
+        
+        print ('Web site starts')
         my_website = Process(name='my_website', target=website_start)
         my_website.start()
         #speed_socket = Process(name='my_second_socket', target=speed_socket_start)
