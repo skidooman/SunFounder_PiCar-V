@@ -132,7 +132,8 @@
 
     <script type="text/javascript">
       var socket = new WebSocket('ws://' + location.hostname + ':5001/socket');
-       
+      var cam_socket = new WebSocket('ws://' + location.hostname + ':5002/cam_socket');
+ 
       // This is our initialization routine, needs to happen after the page is loaded
       function initialize() {
      	// Disables the contextual menu on long touches
@@ -142,9 +143,9 @@
      	return false;
      	};*/
         console.log('initializing camera');
+        // Won't do anything, we just want the sockets open
         socket.onopen = () => socket.send('{"action":"camera", "orientation":"up","speed":0}');
-        //socket.send('{"action":"camera", "orientation":"reset", "speed":0}');
-        //socket.send('{"action":"reset", "orientation":"reset", "speed":0}');
+        cam_socket.onopen = () => cam_socket.send('{"vertical":"none", "horizontal":"none"}');
 
         var streaming_url = 'http://' + location.hostname + ':8765/mjpg';
         console.log('resetting background to ' +  streaming_url);
@@ -443,7 +444,7 @@
 
     var semaphore = 0; // Only process one command at a time
 
-    // This function communicates to the Core Car what to do
+    // This function communicates to the Core Car what to do for driving
     // It is implemented via Websockets
     // Problem: if a user or a browser multiplies the calls to this
     // function, it will clog our socket and cause the board to
@@ -471,8 +472,20 @@
        console.log('done')
        
     }
-
+    // Does it do anything?
     move3('camera','reset',0);
+
+    // This function controls the camera
+    // There seems to be a LOT LESS instability on the low-level drivers here
+    // so we should not need any semaphores
+    function cammove(vertical, horizontal) {
+       var myDict = {'vertical':vertical, 'horizontal':horizontal};
+       var myString = JSON.stringify(myDict);
+       console.log('sending '+ myString);
+       if (cam_socket.readyState != 1) cam_socket.onopen = () => {cam_socket.send(myString);}
+       else cam_socket.send(myString);
+       console.log('done')
+    }   
     
     function move2(direction, speed, steering) {
         if (semaphore) setTimeout(function () { console.log('semaphore red');}, 200);
@@ -547,17 +560,17 @@
 	<tr><td><h3>Camera</h3>
 	<table border="0" style="position: relative; height: 180px;">
 	<tr>
-		<td><img src="{{url_for('static', filename='up-left.png')}}" onmousedown="move3('camera', 'up', 'left');" ontouchstart="move3('camera','up','left');" onmouseup="move3('camera', 'reset', 0);" onmouseout=="move3('camera', 'reset', 0);" ontouchend=="move3('camera', 'reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='up.png')}}" onmousedown="move3('camera', 'up', 0);" ontouchstart="move3('camera','up',0);" onmouseup="move3('camera', 'reset', 0);" onmouseout=="move3('camera', 'reset', 0);" ontouchend=="move3('camera', 'reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='up-right.png')}}" onmousedown="move3('camera', 'up', 'right');" ontouchstart="move3('camera','up','right');" onmouseup="move3('camera', 'reset', 0);" onmouseout=="move3('camera', 'reset', 0);" ontouchend=="move3('camera', 'reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='up-left.png')}}" onmousedown="cammove('up', 'left');" ontouchstart="cammove('up','left');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='up.png')}}" onmousedown="cammove('up', 0);" ontouchstart="cammove('up',0);" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='up-right.png')}}" onmousedown="cammove('up', 'right');" ontouchstart="cammove('up','right');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
 	</tr><tr>
-		<td><img src="{{url_for('static', filename='left.png')}}" onmousedown="move3('camera', '0', 'left');" ontouchstart="move3('camera','0','left');" onmouseup="move3('camera', 'reset', 0);" onmouseout=="move3('camera', 'reset', 0);" ontouchend=="move3('camera', 'reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='camera.png')}}" onmousedown="move3('camera', 'reset', '0');" ontouchstart="move3('camera','reset','0');" onmouseup="move3('camera', 'reset', 0);" onmouseout=="move3('camera', 'reset', 0);" ontouchend=="move3('camera', 'reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='right.png')}}" onmousedown="move3('camera', '0', 'right');" ontouchstart="move3('camera','0','right');" onmouseup="move3('camera', 'reset', 0);" onmouseout=="move3('camera', 'reset', 0);" ontouchend=="move3('camera', 'reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='left.png')}}" onmousedown="cammove('0', 'left');" ontouchstart="cammove('0','left');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='camera.png')}}" onmousedown="cammove('reset', '0');" ontouchstart="cammove('reset','0');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='right.png')}}" onmousedown="cammove('0', 'right');" ontouchstart="cammove('0','right');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
 	</tr><tr>
-		<td><img src="{{url_for('static', filename='down-left.png')}}" onmousedown="move3('camera', 'down', 'left');" ontouchstart="move3('camera','down','left');" onmouseup="move3('camera', 'reset', 0);" onmouseout=="move3('camera', 'reset', 0);" ontouchend=="move3('camera', 'reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='down.png')}}" onmousedown="move3('camera', 'down', 0);" ontouchstart="move3('camera','down',0);" onmouseup="move3('camera', 'reset', 0);" onmouseout=="move3('camera', 'reset', 0);" ontouchend=="move3('camera', 'reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='down-right.png')}}" onmousedown="move3('camera', 'down', 'right');" ontouchstart="move3('camera','down','right');" onmouseup="move3('camera', 'reset', 0);" onmouseout=="move3('camera', 'reset', 0);" ontouchend=="move3('camera', 'reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='down-left.png')}}" onmousedown="cammove('down', 'left');" ontouchstart="cammove('down','left');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='down.png')}}" onmousedown="cammove('down', 0);" ontouchstart="cammove('down',0);" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='down-right.png')}}" onmousedown="cammove('down', 'right');" ontouchstart="cammove('down','right');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
 	</tr></table>
 	</td></tr>
 	<tr><td><a href="https://www.flaticon.com/free-icons/down" title="down icons">Down icons created by Freepik - Flaticon</a></td></tr>

@@ -98,7 +98,7 @@ def socket_start():
    app.run(host='0.0.0.0', port=5001, threaded=True)
 
 
-@sock.route('/socket')
+@sock.route('/cam_socket')
 def socket_camera(sock):
    db_file = "remote_control/drive/config"
    cam = camera.Camera(debug=False, db=db_file)
