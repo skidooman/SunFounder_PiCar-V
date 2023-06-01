@@ -579,45 +579,45 @@
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(3);" ontouchstart="turnLeft(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="forward3" onmousedown="move(3);" ontouchstart="move(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td align="center"><center><div id="forward3" onmousedown="move3('forward','straight', 80);" ontouchstart="move3('forward','straight',80);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(3);" ontouchstart="turnRight(3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(2);" ontouchstart="turnLeft(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="forward2" onmousedown="move(2);" ontouchstart="move(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td align="center"><center><div id="forward2" onmousedown="move3('forward','straight', 60);" ontouchstart="move3('forward','straight',60);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(2);" ontouchstart="turnRight(2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(1);" ontouchstart="turnLeft(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="forward1" onmousedown="move(1);" ontouchstart="move(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td align="center"><center><div id="forward1" onmousedown="move3('forward','straight', 40);" ontouchstart="move3('forward','straight',40);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(1);" ontouchstart="turnRight(1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br><br>
 		
-		<div id="stop" align="center" onmousedown="move(0);" ontouchstart="move(0);"></div><br>
+		<div id="stop" align="center" onmousedown="move3('stop','straight',0);" ontouchstart="move('stop','straight',0);"></div><br>
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(-1);" ontouchstart="turnLeft(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="backward1" onmousedown="move(-1);" ontouchstart="move(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td align="center"><center><div id="backward1" onmousedown="move3('backward','straight', 40);" ontouchstart="move3('backward','straight',40);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(-1);" ontouchstart="turnRight(-1);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(-2);" ontouchstart="turnLeft(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="backward2" onmousedown="move(-2);" ontouchstart="move(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td align="center"><center><div id="backward2" onmousedown="move3('backward','straight', 60);" ontouchstart="move3('backward','straight',60);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(-2);" ontouchstart="turnRight(-2);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
 		<td><div onmousedown="turnLeft(-3);" ontouchstart="turnLeft(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="backward3" onmousedown="move(-3);" ontouchstart="move(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td align="center"><center><div id="backward3" onmousedown="move3('backward','straight', 80);" ontouchstart="move3('backward','straight',80);" ontouchend="move3('stop','straight',80);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(-3);" ontouchstart="turnRight(-3);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
-		<td><div onmousedown="turnLeft(-4);" ontouchstart="turnLeft(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
-		<td align="center"><center><div id="triangle-down" onmousedown="move(-4);" ontouchstart="move(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);" align="center"></div></center></td>
+		<td><div onmousedown="turnLeft(-4);" eft(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">L</div></td>
+		<td align="center"><center><div id="triangle-down"  onmousedown="move3('backward','straight', 100);" ontouchstart="move3('backward','straight',100);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
 		<td><div onmousedown="turnRight(-4);" ontouchstart="turnRight(-4);" ontouchend="move(0);" onmouseup="move(0);" onmouseout="move(0);">D</div></td>
 		</tr></table><br><br><br>
 

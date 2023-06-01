@@ -52,23 +52,24 @@ def socket(sock):
            if myDict['orientation'] == 'reset':
               print ('ensuring cam is ready')
               mycam.ready()
-        if myDict['action'] == 'forward':
+
+        # These are all the actions that concern the rear wheels
+        # Essentially, the car can go forward, backward, stop or reset
+        elif myDict['action'] == 'forward':
            print ('forward')
-           #motion.speed = int(myDict['speed'])
            motion.forward()
-           motion.speed = 90
-           print ('done')
+           motion.speed = int(myDict['speed'])
+        elif myDict['action'] == 'backward':
+           print ('backward')
+           motion.backward()
+           motion.speed = int(myDict['speed'])
         elif myDict['action'] == 'stop':
+           print ('stop')
            motion.stop()
         elif myDict['action'] == 'reset':
-           print ('ready')
+           print ('reset')
            motion.ready()
         sock.send('done')
-        #performActions(myDict, cam, motion, steering)
-        #processor = Process(name='processor',target=performActions)
-        #processor.start()
-        #sock.send(counter)
-        
 
 def socket_start():
    app.run(host='0.0.0.0', port=5001, threaded=True)
