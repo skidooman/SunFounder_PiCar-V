@@ -34,7 +34,7 @@ in_motion = 0
 @sock.route('/socket')
 def socket(sock):
     # These are globals for the camera, back wheels (move the car) and the front wheels (steering)
-    db_file = "remote_control/drive/config"
+    db_file = "remote_control/driver/config"
     motion = picar.back_wheels.Back_Wheels(debug=False, db=db_file)
     steering = picar.front_wheels.Front_Wheels(debug=False, db=db_file)
     
@@ -80,7 +80,7 @@ def socket_start():
 
 @sock.route('/cam_socket')
 def socket_camera(sock):
-   db_file = "remote_control/drive/config"
+   db_file = "remote_control/driver/config"
    cam = camera.Camera(debug=False, db=db_file)
    print ('cam socket activated')
    while True:

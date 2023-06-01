@@ -131,6 +131,9 @@
   </head>
 
     <script type="text/javascript">
+      // Depending on how you built the buggy, the forward and backward may be
+      // inverted. If so, select 1, otherwise 0
+      var inverted = 1;
       var socket = new WebSocket('ws://' + location.hostname + ':5001/socket');
       var cam_socket = new WebSocket('ws://' + location.hostname + ':5002/cam_socket');
  
@@ -337,6 +340,11 @@
           else in_motion = 0;
        }
        var myDict = {'action':action, 'orientation':orientation, 'speed':speed};
+       // If inverted, deal with it here
+       if (inverted){
+          if (myDict['action'] == 'forward') myDict['action'] = 'backward';
+          else myDict['action'] = 'forward';
+       }
        var myString = JSON.stringify(myDict);
        console.log('sending '+ myString);
        if (socket.readyState != 1) socket.onopen = () => {socket.send(myString);}
