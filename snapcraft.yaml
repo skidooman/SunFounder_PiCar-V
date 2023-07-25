@@ -40,7 +40,7 @@ parts:
     source: https://github.com/skidoomanubuntu/SunFounder_PiCar.git
     #plugin: dump
     plugin: python
-    python-packages: [flask, flask-sock, RPI.GPIO, numpy]
+    python-packages: [flask, flask-sock, RPI.GPIO, numpy, picar]
     # python-packages: [opencv-python]
     # On classic also do sudo apt install libgl1
     python-requirements: [requirements.txt]
