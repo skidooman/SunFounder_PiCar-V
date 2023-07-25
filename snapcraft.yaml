@@ -24,6 +24,7 @@ apps:
     environment:
       LD_LIBRARY_PATH: $SNAP/usr/lib/atlas-base/atlas:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/atlas/:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/samba:$LD_LIBRARY_PATH
       PYTHONPATH: $SNAP/usr/lib/python3.10/dist-packages:$SNAP/lib/python3.10/site-packages:$SNAP/usr/lib/python3/dist-packages
+      # Puth the path to SunFounder plain in PYTHONPATH
     plugs: [home, network, network-bind, i2c]
 
   picar:
