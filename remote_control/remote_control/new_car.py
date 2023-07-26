@@ -13,12 +13,15 @@ import picar, json
 # For snapping, we may need to include the path to templates
 import sys
 templates_dir = 'templates'
-print ("HERE: %s" % sys.argv[1])
+static_dir = 'static'
 if len(sys.argv) > 1:
     print ("Setting templates dir to %s" % sys.argv[1])
     templates_dir = sys.argv[1]
+if len(sys.argv) > 2:
+    print ("Setting static dir to %s" % sys.argv[2])
+    static_dir = sys.argv[2]
 
-app = Flask(__name__, template_folder=templates_dir)
+app = Flask(__name__, template_folder=templates_dir, static_folder=static_dir)
 
 sock = Sock(app)
 
