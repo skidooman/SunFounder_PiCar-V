@@ -10,7 +10,16 @@ import datetime
 from driver import camera, stream
 import picar, json
 
-app = Flask(__name__)
+# For snapping, we may need to include the path to templates
+import sys
+templates_dir = 'templates'
+print ("HERE: %s" % sys.argv[1])
+if len(sys.argv) > 1:
+    print ("Setting templates dir to %s" % sys.argv[1])
+    templates_dir = sys.argv[1]
+
+app = Flask(__name__, templates=templates_dir)
+
 sock = Sock(app)
 
 @app.route('/')
