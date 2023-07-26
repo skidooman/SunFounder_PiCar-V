@@ -18,7 +18,7 @@ if len(sys.argv) > 1:
     print ("Setting templates dir to %s" % sys.argv[1])
     templates_dir = sys.argv[1]
 
-app = Flask(__name__, templates=templates_dir)
+app = Flask(__name__, template_folder=templates_dir)
 
 sock = Sock(app)
 
