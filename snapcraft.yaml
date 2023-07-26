@@ -18,14 +18,20 @@ description: |
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: devmode # use 'strict' once you have the right plugs and slots
 
+lint:
+  ignore:
+    - classic
+    - library
+
 apps:
   server:
-    command: bin/python3 $SNAP/etc/new_car.py
+    command: bin/python3 $SNAP/etc/new_car.py $SNAP/templates $SNAP/static
     environment:
-      LD_LIBRARY_PATH: $SNAP/usr/lib/atlas-base/atlas:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/atlas/:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/samba:$LD_LIBRARY_PATH
-      PYTHONPATH: $SNAP/usr/lib/python3.10/dist-packages:$SNAP/lib/python3.10/site-packages:$SNAP/usr/lib/python3/dist-packages
-      # Puth the path to SunFounder plain in PYTHONPATH
-    plugs: [home, network, network-bind, i2c]
+      LD_LIBRARY_PATH: $SNAP/usr/lib/aarch64-linux-gnu/avahi:$SNAP/usr/lib/aarch64-linux-gnu/blas:$SNAP/usr/lib/aarch64-linux-gnu/dri:$SNAP/usr/lib/aarch64-linux-gnu/engines-1.1:$SNAP/usr/lib/aarch64-linux-gnu/gdk-pixbuf-2.0:$SNAP/usr/lib/aarch64-linux-gnu/gio:$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0:$SNAP/usr/lib/aarch64-linux-gnu/gstreamer1.0:$SNAP/usr/lib/aarch64-linux-gnu/gtk-3.0:$SNAP/usr/lib/aarch64-linux-gnu/hwloc:$SNAP/usr/lib/aarch64-linux-gnu/lapack:$SNAP/usr/lib/atlas-base/atlas:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/atlas/:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/samba:$LD_LIBRARY_PATH
+      #PYTHONPATH: $SNAP/usr/lib/python3.10/dist-packages:$SNAP/lib/python3.10/site-packages:$SNAP/usr/lib/python3/dist-packages
+      PYTHONPATH: $SNAP/usr/lib/python3.8/dist-packages:$SNAP/lib/python3.8/site-packages:$SNAP/usr/lib/python3/dist-packages:$SNAP/remote_control/remote_control
+      # Put the path to SunFounder plain in PYTHONPATH
+    plugs: [home, network, network-bind, i2c, camera, gpio-control]
 
   picar:
     command: bin/python3 $SNAP/bin/picar
@@ -41,11 +47,11 @@ parts:
     source: https://github.com/skidoomanubuntu/SunFounder_PiCar.git
     #plugin: dump
     plugin: python
-    python-packages: [flask, flask-sock, RPI.GPIO, numpy, picar]
+    python-packages: [flask, flask-sock, RPI.GPIO, numpy, picar, smbus]
     # python-packages: [opencv-python]
     # On classic also do sudo apt install libgl1
     python-requirements: [requirements.txt]
-    stage-packages: [python3,python3-smbus]
+    stage-packages: [python3,python3-smbus,python3-opencv]
     #organize:
     #  remote_control/remote_control/new_car.py: bin/new_car.py 
     override-stage: |
@@ -67,146 +73,7 @@ parts:
       cp "${CRAFT_PART_SRC}/remote_control/remote_control/new_car.py" "${CRAFT_STAGE}/etc/"
     override-prime: |
       craftctl default
-      mkdir "${CRAFT_PRIME}/etc/"
+      #mkdir "${CRAFT_PRIME}/etc/"
       cp "${CRAFT_STAGE}/etc/new_car.py" "${CRAFT_PRIME}/etc/"
-      #python3 parts/opencv/build/python_loader/setup.py install
-
-  opencv:
-    after: [core-car-base, core-car-code]
-    plugin: cmake
-    source: https://github.com/opencv/opencv.git
-    source-tag: 4.6.0
-    source-depth: 1
-    cmake-parameters:
-      - -DINSTALL_C_EXAMPLES=ON
-      - -DINSTALL_PYTHON_EXAMPLES=ON
-      - -DBUILD_EXAMPLES=ON
-      - -DCMAKE_INSTALL_PREFIX=/usr
-      - -DOPENCV_EXTRA_MODULES_PATH=contrib/modules
-      - -DWITH_JASPER=ON
-      - -DWITH_OPENGL=ON
-      - -DWITH_GSTREAMER=ON
-      - -DOPENCV_GENERATE_PKGCONFIG=ON
-      - -DOPENCV_PC_FILE_NAME=opencv.pc
-      - -DOPENCV_PYTHON3_INSTALL_PATH=$(${CRAFT_STAGE}/usr/bin/python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
-      - -DPYTHON_EXECUTABLE=$(${CRAFT_STAGE}/usr/bin/python3)
-    override-build: |
-      git-force-clone -b 4.6.0 https://github.com/opencv/opencv_contrib.git contrib
-      snapcraftctl build
-    build-packages:
-      - libjpeg-dev
-      - libtiff5-dev
-      - libpng-dev
-      - libpng16-16 
-      - libavcodec-dev
-      - libavformat-dev
-      - libswscale-dev
-      - libv4l-dev
-      - libxvidcore-dev
-      - libx264-dev
-      - libatlas-base-dev
-      - gfortran
-      - python3-dev
-      - python3-numpy
-      - git-extras
-    stage-packages:
-      - libatk1.0-0
-      - libatk-bridge2.0-0
-      - libatlas3-base
-      - libatspi2.0-0
-      - libavcodec-extra58
-      - libavformat58
-      - libavutil56
-      - libbluray2
-      #- libboost-filesystem1.67.0
-      #- libboost-system1.67.0
-      - libcairo2
-      - libcairo-gobject2
-      #- libcapnp-0.7.0
-      - libdatrie1
-      #- libdc1394-22
-      - libepoxy0
-      - libexif12
-      - libfontconfig1
-      - libgdk-pixbuf2.0-0
-      - libgl1-mesa-dri
-      - libgme0
-      - libgomp1
-      - libgphoto2-6
-      - libgphoto2-port12
-      - libgraphite2-3
-      - libgsm1
-      - libharfbuzz0b
-      #- libicu66
-      #- libilmbase24
-      - libjbig0
-      - libjpeg-turbo8
-      - libltdl7
-      - libmodplug1
-      - libmp3lame0
-      - libogg0
-      - libopencore-amrnb0
-      - libopencore-amrwb0
-      #- libopenexr24
-      - libopenjp2-7
-      - libopus0
-      - liborc-0.4-0
-      - libpixman-1-0
-      #- libprotobuf-lite17
-      #- libpython3.9
-      - libraw1394-11
-      - librtmp1
-      #- libschroedinger-coordgenlibs1
-      #- libschroedinger-maeparser1
-      - libshine3
-      - libsnappy1v5
-      - libsoxr0
-      - libspeex1
-      - libssh-gcrypt-4
-      - libswresample3
-      - libswscale5
-      - libthai0
-      - libtheora0
-      - libtiff5
-      - libtwolame0
-      - libusb-1.0-0
-      - libv4l-0
-      - libv4lconvert0
-      - libva2
-      - libvo-aacenc0
-      - libvo-amrwbenc0
-      - libvorbis0a
-      - libvorbisenc2
-      #- libvpx6
-      - libwavpack1
-      - libwayland-client0
-      - libwayland-cursor0
-      - libwayland-egl1-mesa
-      #- libwebp6
-      - libx11-6
-      #- libx264-155
-      #- libx265-179
-      - libxau6
-      - libxcb1
-      - libxcb-render0
-      - libxcb-shm0
-      - libxcomposite1
-      - libxcursor1
-      - libxdamage1
-      - libxdmcp6
-      - libxext6
-      - libxfixes3
-      - libxi6
-      - libxinerama1
-      - libxkbcommon0
-      - libxml2
-      - libxrandr2
-      - libxrender1
-      - libxvidcore4
-      - libzvbi0
-      - python3-numpy
-      - python3-minimal
-      - python3-pil
-      - libtesseract4
-      - to amd64: [ "libcrystalhd3:amd64", "libnuma1:amd64" ]
-      - to i386: [ "libcrystalhd3:i386", "libnuma1:i386" ]
+      mv "${CRAFT_PRIME}/remote_control/remote_control/templates" "${CRAFT_PRIME}"
+      mv "${CRAFT_PRIME}/remote_control/remote_control/static" "${CRAFT_PRIME}"
