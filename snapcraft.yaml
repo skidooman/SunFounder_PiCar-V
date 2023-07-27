@@ -32,7 +32,7 @@ apps:
       PYTHONPATH: $SNAP/usr/lib/python3.8/dist-packages:$SNAP/lib/python3.8/site-packages:$SNAP/usr/lib/python3/dist-packages:$SNAP/remote_control/remote_control
       # Put the path to SunFounder plain in PYTHONPATH
     # I need 17 for Motor_A, 27 for Motor_B, 4 for PWM_A and 5 for PWM_B
-    plugs: [home, network, network-bind, i2c, camera, gpio, gpio-control, gpio-memory-control, physical-memory-control, physical-memory-observe, pwm]
+    plugs: [home, network, network-bind, i2c, camera, gpio-memory-control]
 
   picar:
     command: bin/python3 $SNAP/bin/picar
