@@ -79,6 +79,7 @@ def socket(sock):
            # Front wheels are in charge of direction (steering)
            # Valid values are left, right and straight
         if myDict['orientation'] == 'left':
+           print ('going left')
            time.sleep(1)
            steering.turn_left()
         elif myDict['orientation'] == 'right':
