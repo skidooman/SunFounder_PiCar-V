@@ -16,7 +16,7 @@ description: |
   Skidooman 
 
 grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
+confinement: strict # use 'strict' once you have the right plugs and slots
 
 lint:
   ignore:
@@ -31,7 +31,8 @@ apps:
       #PYTHONPATH: $SNAP/usr/lib/python3.10/dist-packages:$SNAP/lib/python3.10/site-packages:$SNAP/usr/lib/python3/dist-packages
       PYTHONPATH: $SNAP/usr/lib/python3.8/dist-packages:$SNAP/lib/python3.8/site-packages:$SNAP/usr/lib/python3/dist-packages:$SNAP/remote_control/remote_control
       # Put the path to SunFounder plain in PYTHONPATH
-    plugs: [home, network, network-bind, i2c, camera, gpio-control]
+    # I need 17 for Motor_A, 27 for Motor_B, 4 for PWM_A and 5 for PWM_B
+    plugs: [home, network, network-bind, i2c, camera, gpio, gpio-control, gpio-memory-control, physical-memory-control, physical-memory-observe, pwm]
 
   picar:
     command: bin/python3 $SNAP/bin/picar
