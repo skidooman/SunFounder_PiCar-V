@@ -49,7 +49,8 @@ def socket(sock):
     db_file = "remote_control/driver/config"
     motion = picar.back_wheels.Back_Wheels(debug=False, db=db_file)
     steering = picar.front_wheels.Front_Wheels(debug=False, db=db_file)
-    
+    picar.setup() 
+
     print ('socket activated ')
     while True:
         print ('Socket waiting for instructions')
@@ -59,7 +60,7 @@ def socket(sock):
         
         # Calling setup systematically before issuing low-level calls seems
         # to improve the stability
-        picar.setup()
+        #picar.setup()
 
         # These are all the actions that concern the rear wheels
         # Essentially, the car can go forward, backward, stop or reset
@@ -80,11 +81,13 @@ def socket(sock):
            # Valid values are left, right and straight
         if myDict['orientation'] == 'left':
            print ('going left')
-           time.sleep(1)
+           #time.sleep(1)
            steering.turn_left()
         elif myDict['orientation'] == 'right':
-           time.sleep(1)
+           #time.sleep(1)
            steering.turn_right()
+        elif myDict['orientation'] == 'straight':
+           steering.turn_straight()
         sock.send('done')
 
 def socket_start():

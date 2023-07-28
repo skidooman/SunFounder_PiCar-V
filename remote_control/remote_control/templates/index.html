@@ -127,6 +127,13 @@
       border-right: 60px solid transparent;
       border-bottom: 35px solid green;
     }
+    #outside-link{
+      color: white;
+      a:link {color: white}  
+      a:visited {color: white}  
+      a:hover {color: white}  
+      a:active {color: white} 
+    }
     </style>
   </head>
 
@@ -157,6 +164,10 @@
         console.log('resetting background to ' +  streaming_url);
 	document.getElementById('div_streamer').style.background="url('" + streaming_url + "') no-repeat center top"; 
         document.getElementById('div_streamer').style.backgroundSize="auto 100%";
+
+        // Set the steering UI to the proper position
+        steering_changed('steering_straight');
+
         console.log('done');
      }
 
@@ -301,7 +312,7 @@
     }
 
 
-    function sequentialLightUpClose(){
+    function sequentialLightsUpClose(){
 	for (var i=3; i > 0; i--){
 		var target = document.getElementById("forward" + i);
 		target.style.backgroundColor = "black";
@@ -309,7 +320,7 @@
 	}
     }
 
-    function sequentialLightDownClose(){
+    function sequentialLightsDownClose(){
 	for (var i=-3; i < 0; i++){
 		var target = document.getElementById("backward" + (i*-1));
 		target.style.backgroundColor = "black";
@@ -366,33 +377,25 @@
        else cam_socket.send(myString);
        console.log('done')
     }   
+
+    // This highlights the steering mode selected
+    function steering_changed(selected_steering) {
+       // Make all items half opaque
+       document.getElementById("steering_left").style.opacity = 0.5;
+       document.getElementById("steering_straight").style.opacity = 0.5;
+       document.getElementById("steering_right").style.opacity = 0.5;
+       // Then make the selected item fully visible
+       document.getElementById(selected_steering).style.opacity = 1;
+
+    }
     
 </script>
 
 <body onload='initialize()' onkeydown="keydown_event(0)" onkeyup="keyup_event(0)">
     
 <script type="text/javascript">
-      	// This needs to be called from here otherwise the cam is never being shown
-	/*run_action('setup');
-      	run_action('bwready');
-      	run_action('fwready');
-      	run_action('camready');*/
       	var allowed = true;
-	
-     	/*// Disables the contextual menu on long touches
-     	window.oncontextmenu = function(event) {
-     	event.preventDefault();
-     	event.stopPropagation();
-     	return false;
-     	}*/
-	//document.getElementById('splash').style.visibility = 'hidden';
-	//console.log('trying sockets');
-	/*var socket = new WebSocket('ws://' + location.hostname + ':5001/socket');
-        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'up' }]));
-        socket.onopen = () => socket.send(JSON.stringify([{'target':'camera','action':'down' }]));
-      	move2('motion',0,'reset');*/
-        //var speed_socket = new WebSocket('ws://' + location.hostname + ':5001/set_speed');
-     </script>
+</script>
 
 <div id="div_controls_left">
 <table border="0">
@@ -400,88 +403,90 @@
 		<img src="{{url_for('static', filename='Core.png')}}" style="position:relative; width: 100%; height:auto;">	
 		<h2>Core Car</h2>
 	</td></tr>
+	<tr><td><h3>Steering</h3>
+	<table border="0" style="position: relative;">
+	<tr>
+		<td><img src="{{url_for('static', filename='left.png')}}" onclick="move3('none','left', 0); steering_changed('steering_left');" id="steering_left" width="40" height="40"</td>
+		<td><img src="{{url_for('static', filename='up.png')}}" onclick="move3('none','straight', 0); steering_changed('steering_straight');" id="steering_straight" width="40" height="40"</td>
+		<td><img src="{{url_for('static', filename='right.png')}}" onclick="move3('none','right', 0); steering_changed('steering_right');" id="steering_right" width="40" height="40"</td>
+	</tr>
+	</table>
+	</td></tr>
 	<tr><td><h3>Camera</h3>
 	<table border="0" style="position: relative; height: 180px;">
 	<tr>
-		<td><img src="{{url_for('static', filename='up-left.png')}}" onmousedown="cammove('up', 'left');" ontouchstart="cammove('up','left');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='up.png')}}" onmousedown="cammove('up', 0);" ontouchstart="cammove('up',0);" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='up-right.png')}}" onmousedown="cammove('up', 'right');" ontouchstart="cammove('up','right');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='up-left.png')}}" onmousedown="cammove('up', 'left');" ontouchstart="cammove('up','left');" onmouseup="cammove('reset', 0);" onmouseout="cammove('reset', 0);" ontouchend="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='up.png')}}" onmousedown="cammove('up', 0);" ontouchstart="cammove('up',0);" onmouseup="cammove('reset', 0);" onmouseout="cammove('reset', 0);" ontouchend="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='up-right.png')}}" onmousedown="cammove('up', 'right');" ontouchstart="cammove('up','right');" onmouseup="cammove('reset', 0);" onmouseout="cammove('reset', 0);" ontouchend="cammove('reset', 0);" width="40" height="40"></td>
 	</tr><tr>
-		<td><img src="{{url_for('static', filename='left.png')}}" onmousedown="cammove('0', 'left');" ontouchstart="cammove('0','left');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='camera.png')}}" onmousedown="cammove('reset', '0');" ontouchstart="cammove('reset','0');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='right.png')}}" onmousedown="cammove('0', 'right');" ontouchstart="cammove('0','right');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='left.png')}}" onmousedown="cammove('0', 'left');" ontouchstart="cammove('0','left');" onmouseup="cammove('reset', 0);" onmouseout="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='camera.png')}}" onmousedown="cammove('reset', '0');" ontouchstart="cammove('reset','0');" onmouseup="cammove('reset', 0);" onmouseout="cammove('reset', 0);" ontouchend="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='right.png')}}" onmousedown="cammove('0', 'right');" ontouchstart="cammove('0','right');" onmouseup="cammove('reset', 0);" onmouseout="cammove('reset', 0);" ontouchend="cammove('reset', 0);" width="40" height="40"></td>
 	</tr><tr>
-		<td><img src="{{url_for('static', filename='down-left.png')}}" onmousedown="cammove('down', 'left');" ontouchstart="cammove('down','left');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='down.png')}}" onmousedown="cammove('down', 0);" ontouchstart="cammove('down',0);" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
-		<td><img src="{{url_for('static', filename='down-right.png')}}" onmousedown="cammove('down', 'right');" ontouchstart="cammove('down','right');" onmouseup="cammove('reset', 0);" onmouseout=="cammove('reset', 0);" ontouchend=="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='down-left.png')}}" onmousedown="cammove('down', 'left');" ontouchstart="cammove('down','left');" onmouseup="cammove('reset', 0);" onmouseout="cammove('reset', 0);" ontouchend="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='down.png')}}" onmousedown="cammove('down', 0);" ontouchstart="cammove('down',0);" onmouseup="cammove('reset', 0);" onmouseout="cammove('reset', 0);" ontouchend="cammove('reset', 0);" width="40" height="40"></td>
+		<td><img src="{{url_for('static', filename='down-right.png')}}" onmousedown="cammove('down', 'right');" ontouchstart="cammove('down','right');" onmouseup="cammove('reset', 0);" onmouseout="cammove('reset', 0);" ontouchend="cammove('reset', 0);" width="40" height="40"></td>
 	</tr></table>
 	</td></tr>
-	<tr><td><a href="https://www.flaticon.com/free-icons/down" title="down icons">Down icons created by Freepik - Flaticon</a></td></tr>
+	<tr><td><a href="https://www.flaticon.com/free-icons/down" title="down icons" id="outside-link">Down icons created by Freepik - Flaticon</a></td></tr>
 </table>
 </div>
 <div id="div_streamer"></div>
 <div id="div_controls_right">
-<table border="0">
+<table border="0" style="vertical-align: top; height: 100%">
 	<tr><td><h3>Based on<br>SunFounder's<br>PiCar-V</h3></td></tr>
-	<tr><td style="vertical-align: top;">
+	<tr><td style="vertical-align: top; height: 80%">
 	<h3>Speed</h3>
 	<center>
-                <div onclick="move3('none','left',0);">left</div> <div onclick="move3('none','right',0);">right</div> 
-		<table border=0 style="width: 100%; height:0;"><tr>
-		<td> <div onmousedown="move3('forward','left', 100);" ontouchstart="move3('forward','left',100);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" >L</div></td>
-		<td align="center"><center><div id="triangle-up" onmousedown="move3('forward','straight', 100);" ontouchstart="move3('forward','straight',100);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
-		<td><div onmousedown="move3('forward','right', 100);" ontouchstart="move3('forward','right',100);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);">D</div></td>
+		<table border=0 width="100%"><tr>
+		<td align="center"><center><div id="triangle-up" onmousedown="move3('forward','none', 100); sequentialLightsUp(3);" ontouchstart="move3('forward','none',100); sequentialLightsUp(3);" ontouchend="move3('stop','none',0); sequentialLightsUpClose();" onmouseup="move3('stop','none',0); sequentialLightsUpClose();" onmouseout="move3('stop','none', 0); sequentialLightsUpClose();" align="center"></div></center></td>
 		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
-		<td><div onmousedown="move3('forward','left', 80);" ontouchstart="move3('forward','left',80);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" >L</div></td>
-		<td align="center"><center><div id="forward3" onmousedown="move3('forward','straight', 80);" ontouchstart="move3('forward','straight',80);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
-		<td><div onmousedown="move3('forward','right', 80);" ontouchstart="move3('forward','right',80);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);">D</div></td>
-		</tr></table><br><br><br>
+		<td align="center"><center><div id="forward3" onmousedown="move3('forward','none', 80); sequentialLightsUp(3);" ontouchstart="move3('forward','none',80); sequentialLightsUp(3);" ontouchend="move3('stop','none',0); sequentialLightsUpClose();" onmouseup="move3('stop','none',0); sequentialLightsUpClose();" onmouseout="move3('stop','none', 0); sequentialLightsUpClose();" align="center"></div></center></td>
+		</tr></table><br><br>
 
 		<table border=0 width="100%"><tr>
-		<td><div onmousedown="move3('forward','left', 60);" ontouchstart="move3('forward','left',60);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" >L</div></td>
-		<td align="center"><center><div id="forward2" onmousedown="move3('forward','straight', 60);" ontouchstart="move3('forward','straight',60);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
-		<td><div onmousedown="move3('forward','right', 60);" ontouchstart="move3('forward','right',60);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);">D</div></td>
-		</tr></table><br><br><br>
+		<td align="center"><center><div id="forward2" onmousedown="move3('forward','none', 60); sequentialLightsUp(2);" ontouchstart="move3('forward','none',60); sequentialLightsUp(2);" ontouchend="move3('stop','none',0); sequentialLightsUpClose();" onmouseup="move3('stop','none',0); sequentialLightsUpClose();" onmouseout="move3('stop','none', 0); sequentialLightsUpClose();" align="center"></div></center></td>
+		</tr></table><br><br>
 
 		<table border=0 width="100%"><tr>
-		<td><div onmousedown="move3('forward','left', 40);" ontouchstart="move3('forward','left',40);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" >L</div></td>
-		<td align="center"><center><div id="forward1" onmousedown="move3('forward','straight', 40);" ontouchstart="move3('forward','straight',40);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
-		<td><div onmousedown="move3('forward','right', 40);" ontouchstart="move3('forward','right',40);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);">D</div></td>
-		</tr></table><br><br><br>
+		<td align="center"><center><div id="forward1" onmousedown="move3('forward','none', 40); sequentialLightsUp(1);" ontouchstart="move3('forward','none',40); sequentialLightsUp(1);" ontouchend="move3('stop','none',0); sequentialLightsUpClose();" onmouseup="move3('stop','none',0); sequentialLightsUpClose();" onmouseout="move3('stop','none', 0); sequentialLightsUpClose();" align="center"></div></center></td>
+		</tr></table><br><br>
 		
-		<div id="stop" align="center" onmousedown="move3('stop','straight',0);" ontouchstart="move('stop','straight',0);"></div><br>
+		<table border=0 width="100%"><tr>
+                <td align="center"><center><div id="stop" align="center" onmousedown="move3('stop','none',0); sequentialLightsUpClose(); sequentialLightsDownClose();" ontouchstart="move('stop','none',0); sequentialLightsUpClose(); sequentialLightsDownClose();"></div></center></td>
+                </tr></table><br><br>
                 
                 <!-- On reverse, trying to turn the wheels tend to cause the low-level code to go to la-la-land
                      This is why it is disabled -->
 		<table border=0 width="100%"><tr>
 		<!--<td><div onmousedown="move3('backward','left', 40);" ontouchstart="move3('backward','left',40);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);">L</div></td>-->
-		<td align="center"><center><div id="backward1" onmousedown="move3('backward','straight', 40);" ontouchstart="move3('backward','straight',40);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
+		<td align="center"><center><div id="backward1" onmousedown="move3('backward','none', 40); sequentialLightsDown(-1);" ontouchstart="move3('backward','none',40); sequentialLightsDown(-1);" ontouchend="move3('stop','none',0); sequentialLightsDownClose();" onmouseup="move3('stop','none',0); sequentialLightsDownClose();" onmouseout="move3('stop','none', 0); sequentialLightsDownClose();" align="center"></div></center></td>
 		<!--<td><div onmousedown="move3('backward','right', 40);" ontouchstart="move3('backward','right',40);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);">D</div></td>-->
-		</tr></table><br><br><br>
+		</tr></table><br><br>
 
 		<table border=0 width="100%"><tr>
 		<!--<td><div onmousedown="move3('backward','left', 60);" ontouchstart="move3('backward','left',60);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);>L</div></td>-->
-		<td align="center"><center><div id="backward2" onmousedown="move3('backward','straight', 60);" ontouchstart="move3('backward','straight',60);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
+		<td align="center"><center><div id="backward2" onmousedown="move3('backward','none', 60); sequentialLightsDown(-2);" ontouchstart="move3('backward','none',60); sequentialLIghtsDown(-2);" ontouchend="move3('stop','none',0); sequentialLightsDownClose();" onmouseup="move3('stop','none',0); sequentialLightsDownClose();" onmouseout="move3('stop','none', 0); sequentialLightsDownClose();" align="center"></div></center></td>
 		<!--<td><div onmousedown="move3('backward','right', 60);" ontouchstart="move3('backward','right',60);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);">D</div></td>-->
-		</tr></table><br><br><br>
+		</tr></table><br><br>
 
 		<table border=0 width="100%"><tr>
 		<!--<td><div onmousedown="move3('backward','left', 80);" ontouchstart="move3('backward','left',80);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);>L</div></td>-->
-		<td align="center"><center><div id="backward3" onmousedown="move3('backward','straight', 80);" ontouchstart="move3('backward','straight',80);" ontouchend="move3('stop','straight',80);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
+		<td align="center"><center><div id="backward3" onmousedown="move3('backward','none', 80); sequentialLightsDown(-3);" ontouchstart="move3('backward','none',80); sequentialLightsDown(-3);" ontouchend="move3('stop','none',80); sequentialLightsDownClose();" onmouseup="move3('stop','none',0); sequentialLightsDownClose();" onmouseout="move3('stop','none', 0); sequentialLightsDownClose();" align="center"></div></center></td>
 		<!--<td><div onmousedown="move3('backward','right', 80);" ontouchstart="move3('backward','right',80);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);">D</div></td>-->
 		</tr></table><br><br><br>
 
 		<table border=0 width="100%"><tr>
 		<!--<td><div onmousedown="move3('backward','left', 100);" ontouchstart="move3('backward','left',100);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);>L</div></td>-->
-		<td align="center"><center><div id="triangle-down"  onmousedown="move3('backward','straight', 100);" ontouchstart="move3('backward','straight',100);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);" align="center"></div></center></td>
+		<td align="center"><center><div id="triangle-down"  onmousedown="move3('backward','none', 100); sequentialLightsDown(-3);" ontouchstart="move3('backward','none',100); sequentialLightsDown(-3);" ontouchend="move3('stop','none',0); sequentialLightsDownClose();" onmouseup="move3('stop','none',0); sequentialLightsDownClose();" onmouseout="move3('stop','none', 0); sequentialLightsDownClose();" align="center"></div></center></td>
 		<!--<td><div onmousedown="move3('backward','right', 100);" ontouchstart="move3('backward','right',100);" ontouchend="move3('stop','straight',0);" onmouseup="move3('stop','straight',0);" onmouseout="move3('stop','straight', 0);">D</div></td>-->
-		</tr></table><br><br><br>
+		</tr></table><br><br>
 
 	</center>
 	</td></tr>
-	<tr><td style="height: 18%;"></td></tr>
+	<tr><td style="height: 20%;"></td></tr>
 </table>
 </div> 
 </body>
