@@ -13,9 +13,32 @@ description: |
   station -facility- . This is all for conference and trade shows
   but hopefully a few hobbyists can also reuse what I did.
 
-  Skidooman 
 
-grade: devel # must be 'stable' to release into candidate/stable channels
+  TO USE, YOU WILL NEED TO CONNECT INTERFACES, since it is in strict confinement.
+  It is meant to work with Ubuntu Core (tested on Core 22), but Core 22.04 works too.
+  
+  INSTALLATION
+  First, install the snap (snap install core-car).
+
+  Then, connect your interfaces on Core, otherwise the OS will not give access
+  snap connect core-car:name_of_plug snapd:name_of_slot
+
+  It should look like this:
+  skidooman@core-car:~$ snap connections core-car
+Interface            Plug                          Slot                  Notes
+camera               core-car:camera               :camera               manual
+gpio-memory-control  core-car:gpio-memory-control  :gpio-memory-control  manual
+home                 core-car:home                 :home                 manual
+i2c                  core-car:i2c                  pi:i2c-0              manual
+i2c                  core-car:i2c                  pi:i2c-1              manual
+network              core-car:network              :network              -
+network-bind         core-car:network-bind         :network-bind         -
+ 
+  I would then sudo snap restart core-car, and it should work.
+
+  Skidooman (VP of Field Engineering IoT)
+
+grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
 lint:
@@ -25,6 +48,8 @@ lint:
 
 apps:
   server:
+    daemon: simple
+    restart-condition: on-failure
     command: bin/python3 $SNAP/etc/new_car.py $SNAP/templates $SNAP/static
     environment:
       LD_LIBRARY_PATH: $SNAP/usr/lib/aarch64-linux-gnu/avahi:$SNAP/usr/lib/aarch64-linux-gnu/blas:$SNAP/usr/lib/aarch64-linux-gnu/dri:$SNAP/usr/lib/aarch64-linux-gnu/engines-1.1:$SNAP/usr/lib/aarch64-linux-gnu/gdk-pixbuf-2.0:$SNAP/usr/lib/aarch64-linux-gnu/gio:$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0:$SNAP/usr/lib/aarch64-linux-gnu/gstreamer1.0:$SNAP/usr/lib/aarch64-linux-gnu/gtk-3.0:$SNAP/usr/lib/aarch64-linux-gnu/hwloc:$SNAP/usr/lib/aarch64-linux-gnu/lapack:$SNAP/usr/lib/atlas-base/atlas:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/atlas/:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/samba:$LD_LIBRARY_PATH
