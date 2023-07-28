@@ -41,6 +41,10 @@ network-bind         core-car:network-bind         :network-bind         -
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
+# Limit architectures to Pi specifc arches
+architectures:
+  - build-on: arm64
+
 lint:
   ignore:
     - classic
