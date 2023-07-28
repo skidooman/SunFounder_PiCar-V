@@ -1,0 +1,24 @@
+To build and install snap 
+On an ARM64 machine
+  mkdir core-car
+  cd core-car
+  mkdir snap
+  cp <path to cloned snapcraft.yaml> snap/.
+  cd ..
+  sudo snapcraft --destructive-mode --verbosity=verbose
+
+  Transfer the .snap file to your Raspberry Pi. Instructions are valid for Ubuntu core 20
+  sudo snap install <name of .snap file>
+
+  Then connect the interfaces as follows:
+  Interface            Plug                          Slot                  Notes
+camera               core-car:camera               :camera               manual
+gpio-memory-control  core-car:gpio-memory-control  :gpio-memory-control  manual
+home                 core-car:home                 :home                 manual
+i2c                  core-car:i2c                  pi:i2c-0              manual
+i2c                  core-car:i2c                  pi:i2c-1              manual
+network              core-car:network              :network              -
+network-bind         core-car:network-bind         :network-bind         -
+
+  Once you are done, restart the snap and you should be all set. 
+  If not executing in daemon mode, keep in mind that starting the server requires sudo.
