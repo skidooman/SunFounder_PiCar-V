@@ -25,14 +25,14 @@ description: |
 
   It should look like this:
   skidooman@core-car:~$ snap connections core-car
-Interface            Plug                          Slot                  Notes
-camera               core-car:camera               :camera               manual
-gpio-memory-control  core-car:gpio-memory-control  :gpio-memory-control  manual
-home                 core-car:home                 :home                 manual
-i2c                  core-car:i2c                  pi:i2c-0              manual
-i2c                  core-car:i2c                  pi:i2c-1              manual
-network              core-car:network              :network              -
-network-bind         core-car:network-bind         :network-bind         -
+  Interface            Plug                          Slot                  Notes
+  camera               core-car:camera               :camera               manual
+  gpio-memory-control  core-car:gpio-memory-control  :gpio-memory-control  manual
+  home                 core-car:home                 :home                 manual
+  i2c                  core-car:i2c                  pi:i2c-0              manual
+  i2c                  core-car:i2c                  pi:i2c-1              manual
+  network              core-car:network              :network              -
+  network-bind         core-car:network-bind         :network-bind         -
  
   I would then sudo snap restart core-car, and it should work.
 
