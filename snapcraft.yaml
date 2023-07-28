@@ -1,8 +1,8 @@
-name: core-car # you probably want to 'snapcraft register <name>'
-base: core22 # the base snap is the execution environment for this snap
-version: '0.1' # just for humans, typically '1.2+git' or '1.3.2'
-summary: Snap to operate the Core Car, which is based on SunFounder Picar-V # 79 char long summary
-description: |
+name: ucore-car
+base: core22
+version: '0.1'
+summary: Snap to operate the Core Car, which is based on SunFounder Picar-V
+description: 
   This project took the open source code from SunFounder Picar-V (as in video)
   project and modified it to enable a new UI interface. It also got rid
   of any Django dependencies. To the best of my abilities it only uses
@@ -13,7 +13,6 @@ description: |
   station -facility- . This is all for conference and trade shows
   but hopefully a few hobbyists can also reuse what I did.
 
-
   TO USE, YOU WILL NEED TO CONNECT INTERFACES, since it is in strict confinement.
   It is meant to work with Ubuntu Core (tested on Core 22), but Core 22.04 works too.
   
@@ -23,8 +22,8 @@ description: |
   Then, connect your interfaces on Core, otherwise the OS will not give access
   snap connect core-car:name_of_plug snapd:name_of_slot
 
-  It should look like this:
-  skidooman@core-car:~$ snap connections core-car
+  It should look like this
+  skidooman@core-car~$ snap connections core-car
   Interface            Plug                          Slot                  Notes
   camera               core-car:camera               :camera               manual
   gpio-memory-control  core-car:gpio-memory-control  :gpio-memory-control  manual
